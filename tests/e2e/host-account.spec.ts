@@ -56,7 +56,8 @@ test("empty bank has an honest import entry, and logout revokes the old session"
   await login(page, "empty_host");
   await expect(page.getByRole("heading", { name: "Bank soal Anda masih kosong" })).toBeVisible();
   await page.getByRole("link", { name: "Impor PDF", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Impor PDF segera tersedia" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Impor PDF", exact: true })).toBeVisible();
+  await page.goto("/banks");
   const cookie = (await context.cookies()).find((c) => c.name === "vanexa_host_session")!;
   expect(cookie.httpOnly).toBe(true);
   expect(cookie.sameSite).toBe("Lax");

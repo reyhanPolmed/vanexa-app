@@ -14,11 +14,12 @@ export default async function setup() {
     await migrate(url);
     await migrate(url); // Migration runner must also tolerate a repeated invocation.
     const passwordHash = await hashPassword("Practice-test-only-2026");
-    for (const username of ["host_a", "host_b", "limited_host"]) {
+    for (const username of ["host_a", "host_b", "limited_host", "import_host"]) {
       const hostId = randomUUID();
       await pool.query("INSERT INTO hosts (id, username, password_hash) VALUES ($1, $2, $3)", [hostId, username, passwordHash]);
       if (username === "host_a") await pool.query("INSERT INTO question_banks (id, owner_id, name, category) VALUES ($1, $2, $3, $4)", ["aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa", hostId, "Latihan TIU pribadi A", "TIU"]);
       if (username === "host_b") await pool.query("INSERT INTO question_banks (id, owner_id, name, category) VALUES ($1, $2, $3, $4)", ["bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbbbb", hostId, "Latihan TWK pribadi B", "TWK"]);
+      if (username === "import_host") await pool.query("INSERT INTO import_drafts (id, owner_id, file_name, page_count, preview, expires_at) VALUES ($1, $2, 'expired.pdf', 1, '{}', now() - interval '1 minute')", ["cccccccc-cccc-4ccc-cccc-cccccccccccc", hostId]);
     }
     execFileSync(process.execPath, ["--import", "tsx", "scripts/create-host.ts"], {
       env: { ...process.env, DATABASE_URL: url, HOST_USERNAME: "empty_host", HOST_PASSWORD: "Practice-test-only-2026" },

@@ -1,6 +1,6 @@
 # Vanexa — Content Spec MVP
 
-Status: draf untuk review. Keputusan produk berasal dari wawancara; struktur halaman, microcopy, dan template impor di bawah adalah usulan. Dokumen ini menetapkan konten produk, bukan menyediakan bank soal CPNS bawaan.
+Status: keputusan produk berasal dari wawancara. Template impor v1 dan batas impor disetujui pengguna pada 2026-11-21 untuk tiket 02; struktur halaman dan microcopy dapat disempurnakan. Dokumen ini menetapkan konten produk, bukan menyediakan bank soal CPNS bawaan.
 
 ## 1. Suara dan batas konten
 
@@ -55,12 +55,14 @@ Jangan menampilkan “tersimpan” sebelum pengakuan server. Jangan menyebut sem
 Setiap Question berisi nomor sumber, kategori, teks pertanyaan, tepat lima opsi A–E, jenis skor, data skor, serta pembahasan bila tersedia. Nomor sumber hanya untuk pelacakan impor; identitas internal tidak bergantung pada nomor tersebut.
 
 - SINGLE_CORRECT: satu kunci A–E. Usulan skor awal: benar 1, salah/kosong 0. Angka ini bukan aturan CPNS resmi dan belum disepakati.
-- WEIGHTED: bobot eksplisit untuk semua A–E. Usulan: bilangan bulat nonnegatif, kosong 0; rentang maksimum masih perlu disetujui. Tidak menyimpulkan satu jawaban benar dari bobot yang sama.
+- WEIGHTED: bobot eksplisit untuk semua A–E berupa integer 0–5, disetujui untuk impor v1. Formula skor total/kosong ditetapkan pada tiket scoring. Tidak menyimpulkan satu jawaban benar dari bobot yang sama.
 - TIU/TWK lazim memakai SINGLE_CORRECT; TKP dapat memakai WEIGHTED. Kategori tidak boleh membuat sistem mengarang kunci atau bobot.
 - Untuk WEIGHTED, hasil menampilkan skor per soal dan bobot setiap opsi; jangan menyebut opsi selain bobot tertinggi sebagai “salah”.
 - Skor total dan maksimum berasal dari versi soal yang dikerjakan. Tidak ada passing grade atau status “lulus”.
 
-## 5. Usulan template PDF v1
+## 5. Template PDF v1 yang disetujui
+
+Batas yang disetujui: 5 MiB, 50 halaman, 200 soal per PDF. Pembahasan opsional. PDF asli tidak disimpan; draft preview bersifat privat dan kedaluwarsa setelah 24 jam. Edit/buang/konfirmasi draft termasuk tiket 03, bukan tiket 02.
 
 Hanya teks satu kolom; tanpa tabel, gambar, rumus kompleks, header/footer berulang, atau OCR. Format marker berada pada awal baris. Pemisah `---END---` menutup satu soal. Teks multiline boleh di dalam pertanyaan, opsi, dan pembahasan; baris marker khusus tidak boleh menjadi isi tanpa mekanisme escape versi berikutnya.
 
@@ -106,7 +108,7 @@ Contoh bobot untuk menjelaskan format, bukan kunci resmi CPNS.
 ---END---
 ```
 
-Satu berkas diusulkan memuat satu kategori dan satu bank. KEY wajib untuk SINGLE_CORRECT; WEIGHTS wajib untuk WEIGHTED; kombinasi keduanya ditolak. Nomor duplikat, opsi hilang, marker berulang, dan nilai kategori tidak dikenal menjadi error eksplisit. Template di atas adalah rancangan teks untuk diekspor menjadi PDF, bukan artefak PDF yang telah diuji parser.
+Satu berkas memuat satu kategori dan satu bank. KEY wajib untuk SINGLE_CORRECT; WEIGHTS wajib untuk WEIGHTED; kombinasi keduanya ditolak. Nomor duplikat, opsi hilang, marker berulang, dan nilai kategori tidak dikenal menjadi error eksplisit. Contoh teks di atas dapat diekspor menjadi PDF; pipeline diuji dengan fixture PDF nyata yang dihasilkan deterministik.
 
 Preview mempertahankan nomor sumber dan teks hasil ekstraksi. Jika urutan baca meragukan, minta koreksi manual; jangan otomatis menebak struktur. Usulan deteksi duplikat: fingerprint teks pertanyaan dan lima opsi yang dinormalisasi, hanya dalam bank milik host; konflik kunci/bobot wajib diperiksa, tidak digabung otomatis.
 
@@ -116,4 +118,4 @@ Mobile-first, ruang putih cukup, teks soal mudah dibaca, kontras memadai. Opsi m
 
 ## 7. Review sebelum implementasi konten
 
-Setujui template marker PDF, dukungan konten teks saja, kewajiban pembahasan, angka skor benar/salah, rentang bobot, serta perilaku duplikat. Nama halaman dan microcopy dapat disempurnakan tanpa mengubah keputusan produk.
+Template marker, konten teks saja, pembahasan opsional, rentang bobot dan batas/expiry impor telah disetujui. Angka skor benar/salah serta perilaku duplikat berdasarkan isi (berbeda dari nomor soal duplikat) masih perlu keputusan pada tiket terkait. Nama halaman dan microcopy dapat disempurnakan tanpa mengubah keputusan produk.

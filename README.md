@@ -1,6 +1,6 @@
 ﻿# Vanexa
 
-Next.js App Router, TypeScript, Tailwind CSS, dan PostgreSQL. Tiket 01 menyediakan login Host dengan username/password, session database, serta bank soal pribadi. Impor PDF dan multiplayer belum diimplementasikan.
+Next.js App Router, TypeScript, Tailwind CSS, dan PostgreSQL. Login Host memakai username/password; bank soal bersifat pribadi. Tiket 02 menambah upload PDF teks dan preview privat. Perbaikan/konfirmasi bank dan multiplayer belum diimplementasikan. Gunakan Node.js 22.13 atau lebih baru untuk parser PDF.
 
 ## Menjalankan
 
@@ -48,8 +48,24 @@ npm.cmd run typecheck
 npm.cmd test
 ```
 
-`npm test` membuat production build, kemudian menjalankan E2E browser dan uji restart production. `TEST_DATABASE_URL` harus menunjuk database disposable bernama tepat `vanexa_test`: setup tes menghapus dan membuat ulang schema public di database tersebut. Jangan arahkan ke data yang ingin dipertahankan. Port 3100 dan 3120 harus kosong; development server pada port lain sebaiknya dihentikan saat build/test memakai folder output yang sama.
+`npm test` menjalankan uji parser template, membuat production build terisolasi dalam `.next-e2e`, kemudian menjalankan E2E browser dan uji restart production. `TEST_DATABASE_URL` harus menunjuk database disposable bernama tepat `vanexa_test`: setup tes menghapus dan membuat ulang schema public di database tersebut. Jangan arahkan ke data yang ingin dipertahankan. Port 3100 dan 3120 harus kosong; development server utama tidak perlu dihentikan karena output tes dipisahkan.
 
 Seam: perilaku UI/API melalui database PostgreSQL nyata; fixture menyiapkan akun/bank tanpa membuat fitur impor di luar tiket. Tidak ada mock penyimpanan atau pemeriksaan hasil melalui query internal database.
 
 Detail kebutuhan ada pada `docs/IMPLEMENTATION-SPEC.md`; backlog pada `docs/tickets/README.md`.
+
+## Upload dan preview PDF
+
+Setelah migrasi, masuk sebagai Host lalu pilih **Impor PDF** pada bank soal. Halaman upload menyediakan contoh template yang dapat disalin ke dokumen dan diekspor menjadi PDF teks. Satu PDF memuat satu kategori/bank; gunakan pertanyaan dan opsi A–E dengan KEY atau WEIGHTS sesuai tipe. Bobot integer 0–5; pembahasan opsional.
+
+Batas: 5 MiB, 50 halaman, 200 soal. PDF bersandi/rusak/scan, gambar, teks diputar, dan struktur beberapa kolom ditolak. Parser tidak menebak kunci atau mengisi opsi hilang. Preview mempertahankan teks sumber dan error per field; soal invalid tetap tampil. Belum ada tombol edit atau konfirmasi ke bank aktif: itu tiket 03.
+
+PDF.js dipakai langsung untuk akses jumlah halaman, posisi teks, dan pemeriksaan operator gambar. Probe PDF dua halaman mempertahankan urutan marker; pengujian PDF nyata mencakup teks lintas halaman, tanda baca Indonesia, PDF bersandi, scan/gambar, dan dua kolom. Ekstraksi berjalan dalam subprocess Node terpisah dengan heap 256 MiB dan timeout 15 detik; teks maksimal 500.000 karakter, upload maksimal 20 detik, dan maksimal dua upload aktif per proses aplikasi. Batas ini melindungi resource proses, bukan klaim kapasitas deployment.
+
+PDF asli hanya berada di memori selama proses dan tidak ditulis ke disk/database. Draft PostgreSQL hanya dapat dibaca owner dan tidak dapat diakses setelah 24 jam. Penghapusan fisik draft kedaluwarsa dilakukan pada upload berikutnya atau dengan:
+
+```powershell
+npm.cmd run import:cleanup
+```
+
+Untuk deployment, jadwalkan perintah cleanup tiap 15 menit melalui scheduler platform. Scheduler belum dipasang pada mesin/deployment oleh tiket ini; expiry akses 24 jam tetap berlaku tanpa scheduler. Jika memakai output standalone, pastikan `scripts/pdf-extract.mjs`, paket PDF.js dan dependency opsional Node-nya ikut dikemas; konfigurasi tracing sudah mencantumkannya. Endpoint upload memakai runtime Node dan membutuhkan kemampuan spawn child process; bukan Edge runtime.

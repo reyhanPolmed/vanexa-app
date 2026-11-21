@@ -9,7 +9,7 @@ export const sessionLifetime = 7 * 24 * 60 * 60;
 export const tokenHash = (token: string) => createHash("sha256").update(token).digest("hex");
 
 export function safeDestination(value: unknown) {
-  return typeof value === "string" && /^\/banks(?:\/[a-fA-F0-9-]{36})?$/.test(value) ? value : "/banks";
+  return typeof value === "string" && /^(?:\/banks(?:\/[a-fA-F0-9-]{36})?|\/imports\/(?:new|[a-fA-F0-9-]{36}))$/.test(value) ? value : "/banks";
 }
 
 export function allowedOrigin(request: Request) {

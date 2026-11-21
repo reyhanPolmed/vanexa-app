@@ -1,6 +1,6 @@
 # Vanexa — Implementation Spec MVP
 
-Status: spesifikasi MVP dengan keputusan terbuka bertanda **Usulan**. Dokumen ini memperinci MVP-SPEC dan berpasangan dengan CONTENT-SPEC. Tiket 01 diimplementasikan secara terpisah; bagian auth di bawah mencatat hasilnya. Realtime dan fitur impor belum diimplementasikan.
+Status: spesifikasi MVP dengan keputusan terbuka bertanda **Usulan**. Dokumen ini memperinci MVP-SPEC dan berpasangan dengan CONTENT-SPEC. Auth tiket 01 dan upload/preview tiket 02 sudah diimplementasikan. Realtime serta edit/konfirmasi impor belum diimplementasikan.
 
 ## 1. Keputusan final
 
@@ -123,6 +123,8 @@ Klien reconnect dengan backoff lalu mengambil snapshot otoritatif, tidak memutar
 
 ## 10. Pipeline PDF usulan
 
+Keputusan tiket 02 yang telah disetujui: template v1, satu kategori/bank, bobot integer 0–5, pembahasan opsional, 5 MiB/50 halaman/200 soal, PDF asli tidak disimpan, draft privat kedaluwarsa setelah 24 jam. Implementasi memakai PDF.js langsung dalam subprocess Node (timeout 15 detik, heap 256 MiB), validasi signature dan streaming byte limit, pemeriksaan geometri/rotasi dan operator gambar, serta JSON preview milik Host. GET draft menolak owner lain dan draft kedaluwarsa. Cleanup fisik berjalan pada upload berikutnya atau perintah cleanup terjadwal oleh deployment; expiry akses tidak menunggu cleanup. Parser tidak memakai OCR/LLM. Batas teks internal 500.000 karakter dan dua upload aktif per proses menjaga resource.
+
 Validasi ukuran/MIME/signature → ekstrak teks dengan parser deterministik → parse marker Content Spec → validasi → draft/preview/edit → konfirmasi atomik. Parser library dipilih setelah dicoba pada fixture template nyata; tidak mengandalkan LLM. Hilangnya struktur adalah error, bukan izin mengarang data.
 
 Batasi ukuran berkas, jumlah halaman, jumlah soal, waktu parsing, dan panjang teks; nilai numeriknya masih terbuka. PDF terkunci/rusak/scan, content stream mencurigakan, dan resource limit menghasilkan error terkontrol. Jangan menulis file upload ke direktori publik. File dihapus setelah masa retensi yang harus ditentukan; log tidak memuat seluruh isi soal atau secret.
@@ -172,10 +174,10 @@ Urutan ini tidak menyiratkan fitur telah dibuat atau diuji. Tidak ada tenggat at
 | Auth host | Username/password telah dipilih. Tiket 01 memakai akun yang diprovisi pengelola dan session PostgreSQL; reset password mandiri belum termasuk MVP tiket ini. |
 | Snapshot room | Bekukan soal saat create; perlu persetujuan karena pertanyaan sebelumnya belum dijawab |
 | Skor/seri | Benar 1, salah/kosong 0; bobot eksplisit nonnegatif; peringkat seri bersama |
-| Template/import | Teks marker v1 di Content Spec; satu kategori per bank; pembahasan opsional |
+| Template/import | Disetujui pada tiket 02: marker v1, satu kategori/bank, pembahasan opsional, bobot 0–5, 5 MiB/50 halaman/200 soal; edit/konfirmasi masih tiket 03. |
 | Identitas/presence | Cookie guest; grace host usulan 5 menit; perjelas nickname sama dan host ikut kuis |
 | Kapasitas | Tidak ada input max peserta produk; tetapkan hasil load test dan batas operasional yang jujur sebelum publikasi |
 | Room publik | Tetapkan penanganan nama/konten bermasalah dan penyalahgunaan pembuatan/join, bukan mengasumsikan room kelompok selalu aman |
-| Retensi dan limits | Tetapkan umur draft/file/hasil, limit PDF dan durasi kuis, serta recovery token guest |
+| Retensi dan limits | Draft impor: expiry akses 24 jam; file asli tidak disimpan; cleanup deployment perlu dijadwalkan. Retensi hasil, durasi kuis, dan recovery token guest masih terbuka. |
 
 Risiko utama: pembocoran jawaban dari hasil awal; koneksi tidak stabil; data parsial/duplikat pada retry; batas deployment WebSocket; parsing PDF ambigu; beban room tanpa batas produk. Mitigasi teknis dan batas operasional harus dibuktikan saat pengujian, bukan dianggap tersedia karena sudah ditulis dalam spesifikasi.

@@ -20,6 +20,7 @@ export default defineConfig({
     env: {
       DATABASE_URL: process.env.TEST_DATABASE_URL,
       APP_ORIGIN: "http://127.0.0.1:3100",
+      NEXT_DIST_DIR: ".next-e2e",
     },
   },
 });

@@ -14,7 +14,7 @@ async function stop(server: ChildProcess) {
 async function start(request: APIRequestContext) {
   const server = spawn(process.execPath, ["node_modules/next/dist/bin/next", "start", "--hostname", "127.0.0.1", "--port", "3120"], {
     stdio: "ignore",
-    env: { ...process.env, NODE_ENV: "production", DATABASE_URL: process.env.TEST_DATABASE_URL, APP_ORIGIN: origin },
+    env: { ...process.env, NODE_ENV: "production", DATABASE_URL: process.env.TEST_DATABASE_URL, APP_ORIGIN: origin, NEXT_DIST_DIR: ".next-e2e" },
   });
   try {
     await expect.poll(async () => {

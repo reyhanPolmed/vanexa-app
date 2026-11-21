@@ -27,6 +27,10 @@ _Avoid_: Room (untuk kumpulan soal)
 Pertanyaan dengan lima pilihan A–E serta kunci jawaban atau bobot pilihan yang menentukan skor latihan.
 _Avoid_: materi
 
+**Import Draft**:
+Hasil ekstraksi sementara dari PDF milik Host, berisi soal yang terbaca dan masalah validasinya sebelum dikonfirmasi menjadi Question Bank.
+_Avoid_: Question Bank (untuk hasil ekstraksi yang belum dikonfirmasi)
+
 **Leaderboard**:
 Daftar peringkat peserta Room yang menampilkan nickname dan skor.
 _Avoid_: passing grade

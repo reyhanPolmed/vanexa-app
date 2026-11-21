@@ -10,11 +10,14 @@
     "typecheck": "tsc --noEmit",
     "db:migrate": "tsx scripts/migrate.ts",
     "host:create": "tsx scripts/create-host.ts",
-    "test": "npm run build && playwright test",
-    "test:e2e": "npm run build && playwright test"
+    "test": "tsx scripts/test-e2e.ts",
+    "test:e2e": "tsx scripts/test-e2e.ts",
+    "import:cleanup": "tsx scripts/cleanup-imports.ts",
+    "test:parser": "node --import tsx --test tests/import-template.test.ts"
   },
   "dependencies": {
     "next": "^16.4.6",
+    "pdfjs-dist": "^6.5.438",
     "pg": "^8.23.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
@@ -24,13 +27,18 @@
     "@playwright/test": "^1.65.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/pdfkit": "^0.17.7",
     "@types/pg": "^8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "^16.4.6",
+    "pdfkit": "^0.21.0",
     "tailwindcss": "^4",
     "tsx": "^4.23.15",
     "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=22.13.0"
   }
 }
