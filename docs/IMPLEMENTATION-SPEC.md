@@ -1,6 +1,6 @@
 # Vanexa — Implementation Spec MVP
 
-Status: draf untuk review, belum persetujuan implementasi fitur. Dokumen ini memperinci MVP-SPEC dan berpasangan dengan CONTENT-SPEC. Pilihan teknis yang belum dijawab dalam wawancara diberi label **Usulan**. Tidak ada API, database, autentikasi, atau realtime produk yang sudah diimplementasikan.
+Status: spesifikasi MVP dengan keputusan terbuka bertanda **Usulan**. Dokumen ini memperinci MVP-SPEC dan berpasangan dengan CONTENT-SPEC. Tiket 01 diimplementasikan secara terpisah; bagian auth di bawah mencatat hasilnya. Realtime dan fitur impor belum diimplementasikan.
 
 ## 1. Keputusan final
 
@@ -16,6 +16,8 @@ Status: draf untuk review, belum persetujuan implementasi fitur. Dokumen ini mem
 10. Next.js, PostgreSQL, dan WebSocket dipilih. Seam utama pengujian adalah E2E bank soal → room → multiplayer → hasil.
 
 ## 2. Kondisi repository
+
+Pembaruan tiket 01: Host masuk memakai username/password sesuai keputusan pengguna. Implementasi memakai driver pg dengan query berparameter, session opaque yang disimpan sebagai hash di PostgreSQL, password scrypt, cookie HttpOnly/SameSite=Lax/Secure pada production, dan pembuatan akun melalui perintah pengelola. Username case-insensitive; email dan provider eksternal tidak diperlukan. Next.js 16.4.6 dan React 19.3.1 menggantikan dependency scaffold lama setelah audit keamanan. Metadata Question Bank dan ownership sudah tersedia; fitur isi soal tetap milik tiket berikutnya.
 
 Tersedia scaffold Next.js 16.2.4, React 19.2.4, TypeScript, Tailwind CSS, dan ESLint; package-lock tersedia setelah pengguna melaporkan download dependency. Kehadiran lockfile tidak membuktikan build/runtime berhasil. Belum ada kode produk, skema database, atau suite pengujian. Sebelum implementasi, ikuti panduan Next.js lokal yang sesuai versi terpasang. PostgreSQL, penyedia auth, dan hosting belum dikonfigurasi.
 
@@ -167,7 +169,7 @@ Urutan ini tidak menyiratkan fitur telah dibuat atau diuji. Tidak ada tenggat at
 | Perlu keputusan | Rekomendasi untuk review, bukan keputusan final |
 | --- | --- |
 | Topologi realtime/hosting | Satu deployment Node persisten bila platform mendukung; pisahkan proses hanya bila diperlukan |
-| Auth host | Pilih satu metode sederhana; provider dan pemulihan akun perlu ditetapkan |
+| Auth host | Username/password telah dipilih. Tiket 01 memakai akun yang diprovisi pengelola dan session PostgreSQL; reset password mandiri belum termasuk MVP tiket ini. |
 | Snapshot room | Bekukan soal saat create; perlu persetujuan karena pertanyaan sebelumnya belum dijawab |
 | Skor/seri | Benar 1, salah/kosong 0; bobot eksplisit nonnegatif; peringkat seri bersama |
 | Template/import | Teks marker v1 di Content Spec; satu kategori per bank; pembahasan opsional |
