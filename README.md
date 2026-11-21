@@ -22,13 +22,14 @@ Akun awal dibuat oleh pengelola dari terminal, tanpa email atau pendaftaran publ
 
 ```powershell
 $env:HOST_USERNAME = 'nama_host'
-$env:HOST_PASSWORD = Read-Host 'Password Host (12–128 karakter)' -MaskInput
+$securePassword = Read-Host 'Password Host (12–128 karakter)' -AsSecureString
+$env:HOST_PASSWORD = [System.Net.NetworkCredential]::new('', $securePassword).Password
 npm.cmd run host:create
 Remove-Item Env:\HOST_PASSWORD
 Remove-Item Env:\HOST_USERNAME
 ```
 
-`-MaskInput` tersedia pada PowerShell 7. Pada Windows PowerShell 5, isi variabel password melalui mekanisme secret terminal yang sesuai; jangan menuliskannya ke source atau command history. Username memakai 3–32 huruf/angka/garis bawah dan tidak membedakan huruf besar/kecil. Akun duplikat ditolak; tidak ada reset password mandiri pada tiket ini.
+Perintah tersebut mendukung Windows PowerShell 5 dan PowerShell 7 tanpa menulis password ke command history. Username memakai 3–32 huruf/angka/garis bawah dan tidak membedakan huruf besar/kecil. Akun duplikat ditolak; tidak ada reset password mandiri pada tiket ini.
 
 Session berumur tetap 7 hari dan dapat dicabut lewat logout. Password di-hash dengan scrypt; database hanya menyimpan hash token session. Login dibatasi 10 percobaan per username per 15 menit; batas ini juga menghitung login berhasil. Operasional publik mungkin membutuhkan proteksi jaringan tambahan, di luar tiket ini.
 

@@ -3,6 +3,6 @@
 Tiket kanonis tetap berada pada backlog lokal yang dibuat melalui skill to-tickets. Indeks ini menjadi pintu masuk workflow implementasi tanpa menggandakan isi tiket.
 
 - [Indeks lengkap dan dependensi](../../.scratch/vanexa-mvp/README.md)
-- [01: Akun Host dan Question Bank pribadi](../../.scratch/vanexa-mvp/issues/01-host-account.md) — **BLOCKED**: metode autentikasi Host dan strategi akses PostgreSQL belum disetujui.
+- [01: Akun Host dan Question Bank pribadi](../../.scratch/vanexa-mvp/issues/01-host-account.md) — **DONE**: username/password, session PostgreSQL, bank owner, migrasi dan CLI akun; 8 E2E, lint, typecheck, dan production build PASS.
 
-Tidak ada tiket DONE. Tiket 02–10 masih menunggu dependensi masing-masing. Tiket berikutnya yang perlu dilanjutkan adalah 01 setelah prasyaratnya disepakati; tiket 02 baru dapat dimulai setelah 01 selesai.
+Tiket berikutnya: [02: Upload PDF teks dan preview hasil ekstraksi](../../.scratch/vanexa-mvp/issues/02-pdf-preview.md). Dependensi tiket 01 terpenuhi; template dan limit impor masih perlu keputusan sebagaimana prasyarat tiket 02. Tiket 02–10 belum dikerjakan.

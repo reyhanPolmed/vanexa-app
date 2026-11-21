@@ -40,10 +40,10 @@ test("Host sees only owned banks in UI and API, and retains session after reload
 });
 
 test("login preserves a safe bank destination and prevents external redirects", async ({ page }) => {
-  await page.goto(`/banks/${bankB}`);
-  await expect(page).toHaveURL(new RegExp(`next=%2Fbanks%2F${bankB}`));
+  await page.goto(`/banks/${bankB.toUpperCase()}`);
+  await expect(page).toHaveURL(new RegExp(`next=%2Fbanks%2F${bankB.toUpperCase()}`));
   await login(page, "host_b");
-  await expect(page).toHaveURL(`/banks/${bankB}`);
+  await expect(page).toHaveURL(`/banks/${bankB.toUpperCase()}`);
   await expect(page.getByRole("heading", { name: "Latihan TWK pribadi B" })).toBeVisible();
   const response = await page.request.post("/api/auth/login", {
     headers: { Origin: origin }, data: { username: "host_b", password, next: "https://example.com" },
@@ -78,6 +78,7 @@ test("wrong and unknown credentials return the same generic message", async ({ p
   const known = await page.request.post("/api/auth/login", { headers: { Origin: origin }, data: { username: "host_a", password: "incorrect" } });
   const unknown = await page.request.post("/api/auth/login", { headers: { Origin: origin }, data: { username: "unknown_host", password: "incorrect" } });
   expect(known.status()).toBe(401);
+  expect(await known.json()).toEqual({ code: "INVALID_CREDENTIALS", message: "Username atau password tidak sesuai.", retryable: false });
   expect(unknown.status()).toBe(401);
   expect(await unknown.json()).toEqual(await known.json());
   expect((await page.request.get("/api/banks")).status()).toBe(401);

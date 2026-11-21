@@ -19,7 +19,7 @@ Status: spesifikasi MVP dengan keputusan terbuka bertanda **Usulan**. Dokumen in
 
 Pembaruan tiket 01: Host masuk memakai username/password sesuai keputusan pengguna. Implementasi memakai driver pg dengan query berparameter, session opaque yang disimpan sebagai hash di PostgreSQL, password scrypt, cookie HttpOnly/SameSite=Lax/Secure pada production, dan pembuatan akun melalui perintah pengelola. Username case-insensitive; email dan provider eksternal tidak diperlukan. Next.js 16.4.6 dan React 19.3.1 menggantikan dependency scaffold lama setelah audit keamanan. Metadata Question Bank dan ownership sudah tersedia; fitur isi soal tetap milik tiket berikutnya.
 
-Tersedia scaffold Next.js 16.2.4, React 19.2.4, TypeScript, Tailwind CSS, dan ESLint; package-lock tersedia setelah pengguna melaporkan download dependency. Kehadiran lockfile tidak membuktikan build/runtime berhasil. Belum ada kode produk, skema database, atau suite pengujian. Sebelum implementasi, ikuti panduan Next.js lokal yang sesuai versi terpasang. PostgreSQL, penyedia auth, dan hosting belum dikonfigurasi.
+Repository memiliki migrasi akun/session/metadata bank, halaman dan API login/logout serta bank owner, dan suite E2E PostgreSQL nyata. Build, lint, typecheck, dan E2E diverifikasi untuk tiket 01. Kesiapan hosting/realtime tidak disimpulkan dari keberhasilan tersebut. Sebelum perubahan Next.js, ikuti panduan lokal sesuai versi terpasang.
 
 ## 3. Scope dan prioritas
 
@@ -36,7 +36,7 @@ Tersedia scaffold Next.js 16.2.4, React 19.2.4, TypeScript, Tailwind CSS, dan ES
 
 WebSocket menyebarkan perubahan lobby/start/status; mutasi penting dapat memakai HTTP idempoten. Ini menjaga retry jawaban tetap sederhana. Satu pemilik proses bertugas menyiarkan perubahan setelah commit. Jika proses HTTP berbeda dari realtime, gunakan outbox PostgreSQL yang dibaca layanan realtime; bila satu proses, publikasi setelah commit plus resync dari database cukup untuk MVP. Pilih salah satu topologi sebelum menulis kode; jangan membangun keduanya.
 
-Deployment harus mendukung koneksi persisten dan worker deadline. Hosting Next.js saja tidak otomatis menyediakan layanan WebSocket. Multi-instance membutuhkan fanout lintas instance; itu bukan persyaratan awal. ORM, library WebSocket, parser PDF, metode autentikasi, dan hosting belum dipilih. Proposal ini tidak menetapkan vendor atau biaya.
+Deployment harus mendukung koneksi persisten dan worker deadline. Hosting Next.js saja tidak otomatis menyediakan layanan WebSocket. Multi-instance membutuhkan fanout lintas instance; itu bukan persyaratan awal. Tiket 01 memakai driver pg tanpa ORM dan autentikasi username/password; library WebSocket, parser PDF, dan hosting masih terbuka. Proposal ini tidak menetapkan vendor atau biaya.
 
 ## 5. Model domain dan data yang diusulkan
 

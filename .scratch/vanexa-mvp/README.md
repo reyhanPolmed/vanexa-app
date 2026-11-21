@@ -1,6 +1,6 @@
 # Vanexa MVP — Development Tickets
 
-Status: backlog lokal yang disusun dari pembagian 10 tiket dalam percakapan. Tidak ada tiket di tracker eksternal yang dibuat dan belum ada implementasi fitur melalui pekerjaan ini. Label ready-for-agent adalah status antrean, bukan bukti semua keputusan telah disetujui atau semua dependensi sudah selesai.
+Status: backlog lokal; tiket 01 DONE setelah verifikasi. Tiket 02–10 belum diimplementasikan. Tidak ada tiket di tracker eksternal yang dibuat. Label ready-for-agent adalah status antrean, bukan bukti semua keputusan telah disetujui atau semua dependensi sudah selesai.
 
 ## Acuan
 
@@ -14,7 +14,7 @@ Jika draf MVP lama bertentangan dengan dokumen lanjutan, gunakan klasifikasi kep
 
 | ID | Tiket | Diblokir oleh |
 | --- | --- | --- |
-| 01 | [Akun Host dan Question Bank pribadi](issues/01-host-account.md) — **BLOCKED** | Menunggu persetujuan metode autentikasi dan strategi akses PostgreSQL |
+| 01 | [Akun Host dan Question Bank pribadi](issues/01-host-account.md) — **DONE** | Tidak ada; username/password dan akses pg telah diimplementasikan serta diuji |
 | 02 | [Upload PDF teks dan preview hasil ekstraksi](issues/02-pdf-preview.md) | 01 |
 | 03 | [Perbaiki preview dan simpan Question Bank yang dapat dipakai ulang](issues/03-confirm-bank.md) | 02 |
 | 04 | [Buat Room publik dan gabung lobby sebagai guest](issues/04-public-room-lobby.md) | 03 |

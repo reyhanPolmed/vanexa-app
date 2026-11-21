@@ -3,16 +3,17 @@ import { cookies } from "next/headers";
 import { allowedOrigin, cookieOptions, createSession, safeDestination, sessionCookie, tokenHash } from "@/lib/auth";
 import { database } from "@/lib/db";
 import { verifyPassword } from "@/lib/password";
+import { apiError } from "@/lib/http";
 
 export async function POST(request: Request) {
-  if (!allowedOrigin(request)) return NextResponse.json({ message: "Permintaan tidak diizinkan." }, { status: 403 });
+  if (!allowedOrigin(request)) return apiError("FORBIDDEN", "Permintaan tidak diizinkan.", 403);
   try {
     const body = await request.text();
-    if (body.length > 4096) return NextResponse.json({ message: "Input terlalu panjang." }, { status: 400 });
+    if (body.length > 4096) return apiError("VALIDATION_ERROR", "Input terlalu panjang.", 400);
     let input;
-    try { input = JSON.parse(body); } catch { return NextResponse.json({ message: "Input tidak valid." }, { status: 400 }); }
+    try { input = JSON.parse(body); } catch { return apiError("VALIDATION_ERROR", "Input tidak valid.", 400); }
     if (!input || typeof input.username !== "string" || typeof input.password !== "string" || input.password.length > 128 || !/^[a-zA-Z0-9_]{3,32}$/.test(input.username)) {
-      return NextResponse.json({ message: "Username atau password tidak sesuai." }, { status: 401 });
+      return apiError("INVALID_CREDENTIALS", "Username atau password tidak sesuai.", 401);
     }
     const username = input.username.toLowerCase();
     const limit = await database().query<{ attempts: number }>(
@@ -22,11 +23,11 @@ export async function POST(request: Request) {
        reset_at = CASE WHEN auth_attempts.reset_at <= now() THEN now() + interval '15 minutes' ELSE auth_attempts.reset_at END
        RETURNING attempts`, [tokenHash(username)],
     );
-    if (limit.rows[0].attempts > 10) return NextResponse.json({ message: "Terlalu banyak percobaan. Coba lagi dalam 15 menit." }, { status: 429 });
+    if (limit.rows[0].attempts > 10) return apiError("RATE_LIMITED", "Terlalu banyak percobaan. Coba lagi dalam 15 menit.", 429, true);
     const result = await database().query<{ id: string; password_hash: string }>("SELECT id, password_hash FROM hosts WHERE username = $1", [username]);
     const host = result.rows[0];
     const valid = await verifyPassword(input.password, host?.password_hash);
-    if (!host || !valid) return NextResponse.json({ message: "Username atau password tidak sesuai." }, { status: 401 });
+    if (!host || !valid) return apiError("INVALID_CREDENTIALS", "Username atau password tidak sesuai.", 401);
     const response = NextResponse.json({ destination: safeDestination(input.next) });
     response.headers.set("Cache-Control", "no-store");
     const previousToken = (await cookies()).get(sessionCookie)?.value;
@@ -34,6 +35,6 @@ export async function POST(request: Request) {
     return response;
   } catch {
     console.error("Host login unavailable.");
-    return NextResponse.json({ message: "Layanan masuk belum tersedia. Coba lagi." }, { status: 503 });
+    return apiError("SERVICE_UNAVAILABLE", "Layanan masuk belum tersedia. Coba lagi.", 503, true);
   }
 }
