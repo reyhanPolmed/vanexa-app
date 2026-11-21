@@ -1,6 +1,6 @@
 ﻿# Vanexa
 
-Next.js App Router, TypeScript, Tailwind CSS, dan PostgreSQL. Login Host memakai username/password; bank soal bersifat pribadi. Tiket 02 menambah upload PDF teks dan preview privat. Perbaikan/konfirmasi bank dan multiplayer belum diimplementasikan. Gunakan Node.js 22.13 atau lebih baru untuk parser PDF.
+Next.js App Router, TypeScript, Tailwind CSS, dan PostgreSQL. Login Host memakai username/password; bank soal bersifat pribadi. Impor PDF mendukung preview, koreksi, pembuangan soal, serta konfirmasi menjadi bank yang dapat dibuka dan dikoreksi kembali. Multiplayer belum diimplementasikan. Gunakan Node.js 22.13 atau lebih baru untuk parser PDF.
 
 ## Menjalankan
 
@@ -58,7 +58,19 @@ Detail kebutuhan ada pada `docs/IMPLEMENTATION-SPEC.md`; backlog pada `docs/tick
 
 Setelah migrasi, masuk sebagai Host lalu pilih **Impor PDF** pada bank soal. Halaman upload menyediakan contoh template yang dapat disalin ke dokumen dan diekspor menjadi PDF teks. Satu PDF memuat satu kategori/bank; gunakan pertanyaan dan opsi A–E dengan KEY atau WEIGHTS sesuai tipe. Bobot integer 0–5; pembahasan opsional.
 
-Batas: 5 MiB, 50 halaman, 200 soal. PDF bersandi/rusak/scan, gambar, teks diputar, dan struktur beberapa kolom ditolak. Parser tidak menebak kunci atau mengisi opsi hilang. Preview mempertahankan teks sumber dan error per field; soal invalid tetap tampil. Belum ada tombol edit atau konfirmasi ke bank aktif: itu tiket 03.
+Batas: 5 MiB, 50 halaman, 200 soal. PDF bersandi/rusak/scan, gambar, teks diputar, dan struktur beberapa kolom ditolak. Parser tidak menebak kunci atau mengisi opsi hilang. Preview mempertahankan teks sumber dan error per field; soal invalid tetap tampil.
+
+## Perbaikan dan konfirmasi bank
+
+Pada preview, buka **Perbaiki soal**, isi pertanyaan, opsi A–E, jenis skor, kunci/bobot, atau pembahasan. Struktur sumber yang ambigu menggunakan editor teks langsung sampai marker diperbaiki; sumber tidak dibersihkan otomatis. Teks di luar struktur dokumen perlu ditinjau dan disetujui secara eksplisit sebelum dibuang dari hasil akhir. Sumber ekstraksi awal tetap tersedia di draft sampai expiry.
+
+**Buang soal** mengecualikan soal dari hasil akhir dan dapat dipulihkan sebelum konfirmasi. Tekan **Simpan perbaikan**, lalu **Tinjau impor** untuk memeriksa jumlah akhir dan daftar nomor sumber yang dibuang. Konfirmasi hanya berhasil bila minimal satu soal valid tersisa dan seluruh soal yang dipertahankan valid. Bank baru dibuat bersama seluruh soalnya dalam satu transaksi; ulang request atau klik ganda tidak membuat bank kedua.
+
+Duplikat dideteksi berdasarkan pertanyaan dan opsi A–E setelah normalisasi Unicode NFKC, huruf kecil, serta whitespace untuk fingerprint saja; teks tersimpan tidak dinormalisasi menjadi huruf kecil. Peringatan mencakup draft dan bank milik Host, tanpa mengekspos bank pengguna lain. Kunci/bobot/pembahasan tidak digunakan untuk menyamakan soal dan tidak digabung. Duplikat boleh dipertahankan; nomor sumber yang sama tetap perlu diperbaiki agar tidak ambigu.
+
+Hanya owner boleh mengedit bank hasil impor. Revision draft/bank menolak perubahan usang dengan HTTP 409; data lokal tidak ditimpa otomatis. Editing bank mengoreksi soal yang sudah ada, menjaga ID dan urutannya; tidak menyediakan penambahan soal manual atau penghapusan soal bank pada tiket ini. Cara perubahan bank berpengaruh pada Room tetap keputusan tiket 04.
+
+API: PATCH draft/bank memakai JSON `{ revision, state }`; state berisi nama bank, kategori, reviewedDocument, dan daftar item `{ source, discarded }`. Item tetap satu per soal sumber. POST confirm memakai `{ revision, idempotencyKey }` (UUID), lalu mengembalikan bankId dan destination. Replay dengan key/revision sama memberi bank yang sama; key atau revision lain setelah konfirmasi memberi 409. Receipt disimpan dalam draft selama sisa masa hidup 24 jam, sementara bank hasil konfirmasi tetap tersimpan.
 
 PDF.js dipakai langsung untuk akses jumlah halaman, posisi teks, dan pemeriksaan operator gambar. Probe PDF dua halaman mempertahankan urutan marker; pengujian PDF nyata mencakup teks lintas halaman, tanda baca Indonesia, PDF bersandi, scan/gambar, dan dua kolom. Ekstraksi berjalan dalam subprocess Node terpisah dengan heap 256 MiB dan timeout 15 detik; teks maksimal 500.000 karakter, upload maksimal 20 detik, dan maksimal dua upload aktif per proses aplikasi. Batas ini melindungi resource proses, bukan klaim kapasitas deployment.
 

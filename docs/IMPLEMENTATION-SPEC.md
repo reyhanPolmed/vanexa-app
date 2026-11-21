@@ -1,6 +1,6 @@
 # Vanexa — Implementation Spec MVP
 
-Status: spesifikasi MVP dengan keputusan terbuka bertanda **Usulan**. Dokumen ini memperinci MVP-SPEC dan berpasangan dengan CONTENT-SPEC. Auth tiket 01 dan upload/preview tiket 02 sudah diimplementasikan. Realtime serta edit/konfirmasi impor belum diimplementasikan.
+Status: spesifikasi MVP dengan keputusan terbuka bertanda **Usulan**. Dokumen ini memperinci MVP-SPEC dan berpasangan dengan CONTENT-SPEC. Auth tiket 01, upload/preview tiket 02, serta editor/konfirmasi tiket 03 sudah diimplementasikan. Realtime belum diimplementasikan.
 
 ## 1. Keputusan final
 
@@ -123,6 +123,8 @@ Klien reconnect dengan backoff lalu mengambil snapshot otoritatif, tidak memutar
 
 ## 10. Pipeline PDF usulan
 
+Keputusan tiket 03: peringatan duplikat pertanyaan+opsi, tetap boleh disimpan, tidak dihapus otomatis; owner mengoreksi bank dengan revision check. State editor mempertahankan satu item sumber untuk tiap soal awal, dengan status discarded yang hanya berlaku sebelum konfirmasi. Sumber ambigu harus diperbaiki, bukan dibersihkan otomatis; masalah struktur dokumen memerlukan review eksplisit. Server memvalidasi ulang semua sumber aktif. SELECT FOR UPDATE menyerialkan perubahan draft/bank; konfirmasi membuat bank/soal/receipt dalam satu transaksi. Konfirmasi ulang dengan UUID key dan revision sama mengembalikan bank yang sama; request berbeda setelah konfirmasi mendapat 409. Bank menyimpan lima opsi dan, untuk WEIGHTED, lima bobot integer 0–5 dengan constraint database. GET bank membaca metadata, revision, serta sumber soal dalam satu snapshot statement. Editing mempertahankan ID dan urutan soal. Aturan edit terhadap Room masih terbuka untuk tiket 04.
+
 Keputusan tiket 02 yang telah disetujui: template v1, satu kategori/bank, bobot integer 0–5, pembahasan opsional, 5 MiB/50 halaman/200 soal, PDF asli tidak disimpan, draft privat kedaluwarsa setelah 24 jam. Implementasi memakai PDF.js langsung dalam subprocess Node (timeout 15 detik, heap 256 MiB), validasi signature dan streaming byte limit, pemeriksaan geometri/rotasi dan operator gambar, serta JSON preview milik Host. GET draft menolak owner lain dan draft kedaluwarsa. Cleanup fisik berjalan pada upload berikutnya atau perintah cleanup terjadwal oleh deployment; expiry akses tidak menunggu cleanup. Parser tidak memakai OCR/LLM. Batas teks internal 500.000 karakter dan dua upload aktif per proses menjaga resource.
 
 Validasi ukuran/MIME/signature → ekstrak teks dengan parser deterministik → parse marker Content Spec → validasi → draft/preview/edit → konfirmasi atomik. Parser library dipilih setelah dicoba pada fixture template nyata; tidak mengandalkan LLM. Hilangnya struktur adalah error, bukan izin mengarang data.
@@ -174,7 +176,7 @@ Urutan ini tidak menyiratkan fitur telah dibuat atau diuji. Tidak ada tenggat at
 | Auth host | Username/password telah dipilih. Tiket 01 memakai akun yang diprovisi pengelola dan session PostgreSQL; reset password mandiri belum termasuk MVP tiket ini. |
 | Snapshot room | Bekukan soal saat create; perlu persetujuan karena pertanyaan sebelumnya belum dijawab |
 | Skor/seri | Benar 1, salah/kosong 0; bobot eksplisit nonnegatif; peringkat seri bersama |
-| Template/import | Disetujui pada tiket 02: marker v1, satu kategori/bank, pembahasan opsional, bobot 0–5, 5 MiB/50 halaman/200 soal; edit/konfirmasi masih tiket 03. |
+| Template/import | Tiket 02: marker v1, satu kategori/bank, pembahasan opsional, bobot 0–5, 5 MiB/50 halaman/200 soal. Tiket 03: editor, discard/restore, peringatan duplikat, revision check dan konfirmasi atomik/idempoten telah diimplementasikan. |
 | Identitas/presence | Cookie guest; grace host usulan 5 menit; perjelas nickname sama dan host ikut kuis |
 | Kapasitas | Tidak ada input max peserta produk; tetapkan hasil load test dan batas operasional yang jujur sebelum publikasi |
 | Room publik | Tetapkan penanganan nama/konten bermasalah dan penyalahgunaan pembuatan/join, bukan mengasumsikan room kelompok selalu aman |

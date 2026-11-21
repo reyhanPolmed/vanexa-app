@@ -118,4 +118,10 @@ Mobile-first, ruang putih cukup, teks soal mudah dibaca, kontras memadai. Opsi m
 
 ## 7. Review sebelum implementasi konten
 
-Template marker, konten teks saja, pembahasan opsional, rentang bobot dan batas/expiry impor telah disetujui. Angka skor benar/salah serta perilaku duplikat berdasarkan isi (berbeda dari nomor soal duplikat) masih perlu keputusan pada tiket terkait. Nama halaman dan microcopy dapat disempurnakan tanpa mengubah keputusan produk.
+Template marker, konten teks saja, pembahasan opsional, rentang bobot dan batas/expiry impor telah disetujui. Pada tiket 03, pengguna menyetujui peringatan duplikat pertanyaan+opsi dalam draft dan bank Host, tanpa penghapusan otomatis; duplikat boleh disimpan. Owner boleh mengedit bank dengan revision check. Angka skor benar/salah dan pengaruh edit bank terhadap Room masih perlu keputusan pada tiket terkait. Nama halaman dan microcopy dapat disempurnakan tanpa mengubah keputusan produk.
+
+## 8. Editor dan konfirmasi
+
+Editor isian mendukung nomor sumber, pertanyaan, lima opsi, tipe skor, kunci atau bobot 0–5, serta pembahasan. Struktur yang ambigu memakai editor teks sumber agar Host memperbaiki marker dan meninjau semua isi. Simpan tanpa perbaikan tidak menghapus error. Soal dapat dibuang atau dipulihkan sebelum konfirmasi; daftar yang dibuang diperlihatkan pada ringkasan final. Teks di luar struktur soal memerlukan persetujuan review eksplisit sebelum tidak disertakan.
+
+Label aksi: “Perbaiki soal”, “Buang soal”, “Pulihkan soal”, “Simpan perbaikan”, “Tinjau impor”, “Konfirmasi impor”. Jangan tampilkan “tersimpan” sebelum server mengakui perubahan. Konflik revision meminta pengguna memuat ulang setelah menyalin perubahan lokal. Draft yang sudah dikonfirmasi menampilkan “Impor sudah dikonfirmasi” dan tautan “Buka bank soal”, bukan tombol membuat bank kedua.

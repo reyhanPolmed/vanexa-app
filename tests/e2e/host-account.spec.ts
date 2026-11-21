@@ -30,7 +30,7 @@ test("Host sees only owned banks in UI and API, and retains session after reload
   expect(banks.status()).toBe(200);
   expect((await banks.json()).banks).toEqual([{ id: bankA, name: "Latihan TIU pribadi A", category: "TIU" }]);
   expect((await page.request.get(`/api/banks/${bankB}`)).status()).toBe(404);
-  expect((await page.request.patch(`/api/banks/${bankB}`, { data: { name: "changed" } })).status()).toBe(405);
+  expect((await page.request.patch(`/api/banks/${bankB}`, { headers: { Origin: origin }, data: { revision: 0, state: {} } })).status()).toBe(404);
   await page.goto(`/banks/${bankB}`);
   await expect(page.getByText("Latihan TWK pribadi B")).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "404" })).toBeVisible();

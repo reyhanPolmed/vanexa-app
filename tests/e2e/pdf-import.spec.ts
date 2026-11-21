@@ -20,13 +20,13 @@ test("Host uploads a text PDF and reads an exact private preview without creatin
   await page.getByLabel("File PDF").setInputFiles({ name: "latihan.pdf", mimeType: "application/pdf", buffer: await textPdf(singleTemplate, { pageBreakAt: 10 }) });
   await page.getByRole("button", { name: "Ekstrak soal" }).click();
   await expect(page.getByRole("heading", { name: "Preview impor", exact: true })).toBeVisible();
-  await expect(page.getByText("Berapakah jumlah 2 dan 3?", { exact: true })).toBeVisible();
+  await expect(page.getByText("Berapakah jumlah 2 dan 3?", { exact: true }).filter({ visible: true })).toBeVisible();
   await expect(page.getByText("Kunci: B", { exact: true })).toBeVisible();
-  await expect(page.getByText("Dua ditambah tiga sama dengan lima.", { exact: true })).toBeVisible();
+  await expect(page.getByText("Dua ditambah tiga sama dengan lima.", { exact: true }).filter({ visible: true })).toBeVisible();
   await expect(page.getByText("1 valid", { exact: true })).toBeVisible();
   expect((await (await page.request.get("/api/banks")).json()).banks).toHaveLength(1);
   await page.reload();
-  await expect(page.getByText("Berapakah jumlah 2 dan 3?", { exact: true })).toBeVisible();
+  await expect(page.getByText("Berapakah jumlah 2 dan 3?", { exact: true }).filter({ visible: true })).toBeVisible();
 });
 
 test("weighted questions preserve explicit 0–5 weights and optional explanation", async ({ request }) => {
