@@ -15,7 +15,7 @@ try {
   }
   loading = getDocument({
     data: new Uint8Array(Buffer.concat(chunks)), isEvalSupported: false,
-    useSystemFonts: true, disableFontFace: true, stopAtErrors: true,
+    useSystemFonts: true, disableFontFace: true, stopAtErrors: true, maxImageSize: 0,
   });
   const pdf = await loading.promise;
   if (pdf.numPages > 50) fail("IMPORT_LIMIT", "PDF maksimal 50 halaman.");
@@ -37,6 +37,7 @@ try {
       if (y !== null && baseline > y + 2) fail("AMBIGUOUS_PDF", "Urutan baca PDF tidak konsisten. Gunakan template satu kolom.");
       if (y === null || Math.abs(baseline - y) > 2) {
         if (line) lines.push(line);
+        if (y !== null && y - baseline > item.height * 2.5) lines.push("");
         line = item.str;
       } else {
         if (x < right - 2 || x - right > 100) fail("AMBIGUOUS_PDF", "Teks bertumpuk atau memiliki beberapa kolom. Gunakan template satu kolom.");
@@ -49,7 +50,9 @@ try {
     }
     if (line) lines.push(line);
     // Images are not silently dropped from questions in the text-only MVP.
-    const operators = await page.getOperatorList();
+    let operators;
+    try { operators = await page.getOperatorList(); }
+    catch { fail("UNSUPPORTED_PDF", "PDF memuat gambar atau operasi yang tidak didukung. Gunakan PDF teks tanpa gambar."); }
     const imageOps = new Set([OPS.paintImageXObject, OPS.paintInlineImageXObject, OPS.paintImageMaskXObject, OPS.paintImageXObjectRepeat, OPS.paintImageMaskXObjectRepeat, OPS.paintImageMaskXObjectGroup, OPS.paintInlineImageXObjectGroup, OPS.paintSolidColorImageMask]);
     if (operators.fnArray.some((operation) => imageOps.has(operation))) fail("UNSUPPORTED_PDF", "PDF mengandung gambar/scan. Gunakan PDF berbasis teks tanpa gambar.");
     pages.push(lines.join("\n"));

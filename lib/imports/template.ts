@@ -12,8 +12,16 @@ function parseQuestion(lines: string[], terminated: boolean): PreviewQuestion {
   if (!/^[1-9]\d*$/.test(sourceNumber)) errors.push(issue("sourceNumber", "INVALID_NUMBER", "Nomor soal harus bilangan bulat positif."));
   if (!terminated) errors.push(issue("structure", "MISSING_END", "Pemisah ---END--- tidak ditemukan."));
   for (const line of lines.slice(1)) {
-    if (!line.trim()) continue;
+    if (!line.trim()) {
+      if (active && ["PROMPT", "EXPLANATION", ...letters].includes(active)) fields.set(active, `${fields.get(active) ?? ""}\n`);
+      continue;
+    }
     const marker = /^([A-Z_]+):\s*(.*)$/.exec(line);
+    if (!marker && /^(?:QUESTION|TYPE|PROMPT|[A-E]|KEY|WEIGHTS|EXPLANATION|CATEGORY|BANK)\s*:/i.test(line)) {
+      errors.push(issue("structure", "MALFORMED_MARKER", "Marker harus memakai huruf kapital dan titik dua tanpa spasi sebelumnya; periksa teks sumber."));
+      active = "";
+      continue;
+    }
     if (marker) {
       const [, field, value] = marker;
       const order = fieldOrder.indexOf(field);
@@ -24,7 +32,7 @@ function parseQuestion(lines: string[], terminated: boolean): PreviewQuestion {
       lastOrder = Math.max(order, lastOrder);
       active = field;
     } else if (active && ["PROMPT", "EXPLANATION", ...letters].includes(active)) {
-      fields.set(active, `${fields.get(active) || ""}\n${line}`.trim());
+      fields.set(active, `${fields.get(active) || ""}\n${line}`);
     } else errors.push(issue("structure", "UNEXPECTED_TEXT", "Teks di luar bagian pertanyaan, opsi, atau pembahasan perlu diperiksa."));
   }
   const type = fields.get("TYPE")?.trim() ?? "";

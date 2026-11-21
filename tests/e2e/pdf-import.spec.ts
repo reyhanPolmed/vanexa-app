@@ -68,6 +68,20 @@ test("invalid fields and duplicates stay in preview with source and cannot becom
   await page.screenshot({ path: ".vanexa-setup/import-preview-mobile.png", fullPage: true });
 });
 
+test("PDF paragraphs survive extraction and malformed scoring markers stay invalid", async ({ request }) => {
+  await login(request);
+  const lines = singleTemplate.join("\n").replace("Berapakah jumlah 2 dan 3?", "Paragraf satu.\n\nParagraf dua.").replace("A: 4", "A: Pilihan baris satu.\n\nPilihan baris dua.").replace("Dua ditambah tiga sama dengan lima.", "KEY : C").split("\n");
+  const response = await upload(request, await textPdf(lines));
+  expect(response.status()).toBe(201);
+  const { id } = await response.json();
+  const { draft } = await (await request.get(`/api/imports/${id}`)).json();
+  const question = draft.preview.questions[0];
+  expect(question.prompt).toBe("Paragraf satu.\n\nParagraf dua.");
+  expect(question.options.A).toBe("Pilihan baris satu.\n\nPilihan baris dua.");
+  expect(question.errors).toContainEqual(expect.objectContaining({ code: "MALFORMED_MARKER" }));
+  expect(question.rawText).toContain("KEY : C");
+});
+
 test("draft requires owner session, is private after refresh, and expires after 24 hours", async ({ request, playwright }) => {
   await login(request);
   const response = await upload(request, await textPdf());
@@ -95,6 +109,7 @@ test("rejects malformed, encrypted, image-only and ambiguous PDFs explicitly", a
     { pdf: await textPdf([], {}), code: "UNSUPPORTED_PDF" },
     { pdf: await textPdf([], { image: true }), code: "UNSUPPORTED_PDF" },
     { pdf: await textPdf(singleTemplate, { image: true }), code: "UNSUPPORTED_PDF" },
+    { pdf: await textPdf(singleTemplate, { largeImage: true }), code: "UNSUPPORTED_PDF" },
     { pdf: await textPdf(singleTemplate, { encrypted: true }), code: "ENCRYPTED_PDF" },
     { pdf: await textPdf(singleTemplate, { twoColumns: true }), code: "AMBIGUOUS_PDF" },
     { pdf: await textPdf(["Arbitrary PDF with no template"]), code: "UNSUPPORTED_TEMPLATE" },

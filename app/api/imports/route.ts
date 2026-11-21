@@ -18,7 +18,7 @@ async function readPdf(request: Request) {
   let bytes = 0;
   let timer: ReturnType<typeof setTimeout>;
   const timeout = new Promise<never>((_, reject) => { timer = setTimeout(() => {
-    void reader.cancel();
+    void reader.cancel().catch(() => {});
     reject(new ImportFailure("UPLOAD_TIMEOUT", "Upload melewati batas waktu. Coba lagi.", 408));
   }, 20_000); });
   try {
@@ -27,7 +27,7 @@ async function readPdf(request: Request) {
         const { value, done } = await reader.read();
         if (done) break;
         bytes += value.length;
-        if (bytes > importLimits.bytes) { void reader.cancel(); throw new ImportFailure("IMPORT_LIMIT", "Ukuran PDF maksimal 5 MiB.", 413); }
+        if (bytes > importLimits.bytes) { void reader.cancel().catch(() => {}); throw new ImportFailure("IMPORT_LIMIT", "Ukuran PDF maksimal 5 MiB.", 413); }
         chunks.push(value);
       }
     })()]);

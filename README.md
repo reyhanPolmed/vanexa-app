@@ -62,6 +62,8 @@ Batas: 5 MiB, 50 halaman, 200 soal. PDF bersandi/rusak/scan, gambar, teks diputa
 
 PDF.js dipakai langsung untuk akses jumlah halaman, posisi teks, dan pemeriksaan operator gambar. Probe PDF dua halaman mempertahankan urutan marker; pengujian PDF nyata mencakup teks lintas halaman, tanda baca Indonesia, PDF bersandi, scan/gambar, dan dua kolom. Ekstraksi berjalan dalam subprocess Node terpisah dengan heap 256 MiB dan timeout 15 detik; teks maksimal 500.000 karakter, upload maksimal 20 detik, dan maksimal dua upload aktif per proses aplikasi. Batas ini melindungi resource proses, bukan klaim kapasitas deployment.
 
+PDF.js dikunci pada 6.5.438. Pengujian menemukan `getOperatorList()` menelan error stream operator sehingga gambar yang ditolak evaluator bisa hilang tanpa error kepada caller. `postinstall` menjalankan koreksi lokal kecil pada urutan reject/resolve di dua build PDF.js, dengan pemeriksaan versi dan bentuk kode; jika tidak cocok, instalasi gagal agar koreksi ditinjau kembali. Jangan memakai `--ignore-scripts` pada instalasi deployment. `maxImageSize: 0` dan `stopAtErrors: true` menolak raster sebelum dekode, termasuk fixture dimensi 100.000 × 100.000 dengan data terkompresi sangat kecil. Batas heap bukan batas RSS seluruh proses. Uji PDF teks, gambar kecil, dan gambar berukuran deklaratif besar harus tetap lulus sebelum upgrade parser.
+
 PDF asli hanya berada di memori selama proses dan tidak ditulis ke disk/database. Draft PostgreSQL hanya dapat dibaca owner dan tidak dapat diakses setelah 24 jam. Penghapusan fisik draft kedaluwarsa dilakukan pada upload berikutnya atau dengan:
 
 ```powershell

@@ -5,7 +5,7 @@ import { findDraft } from "@/lib/imports/drafts";
 import { letters, type ImportIssue } from "@/lib/imports/limits";
 
 function Issues({ errors }: { errors: ImportIssue[] }) {
-  return errors.length ? <ul className="mt-4 space-y-2 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900" aria-label="Error validasi">
+  return errors.length ? <ul className="mt-4 space-y-2 break-words rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900" aria-label="Error validasi">
     {errors.map((error, index) => <li key={index}><strong>{error.field}:</strong> {error.message}</li>)}
   </ul> : null;
 }
@@ -28,11 +28,11 @@ export default async function ImportPage({ params }: { params: Promise<{ id: str
     <p className="mt-5 text-sm leading-6 text-slate-600">Ini adalah draft, belum disimpan sebagai bank aktif. Perbaikan, pembuangan soal, dan konfirmasi tersedia pada tahap berikutnya.</p>
     <ol className="mt-7 space-y-6">
       {preview.questions.map((question, index) => <li key={index} className="panel min-w-0 p-5 sm:p-7">
-        <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="font-semibold">Soal {question.sourceNumber || `tanpa nomor (${index + 1})`}</h2><span className="badge">{question.errors.length || preview.errors.length ? "Perlu diperiksa" : "Valid"}</span></div>
-        <p className="mt-2 text-xs text-slate-500">{question.type || "Tipe belum valid"}</p>
+        <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="min-w-0 break-all font-semibold">Soal {question.sourceNumber || `tanpa nomor (${index + 1})`}</h2><span className="badge">{question.errors.length || preview.errors.length ? "Perlu diperiksa" : "Valid"}</span></div>
+        <p className="mt-2 break-words text-xs text-slate-500">{question.type || "Tipe belum valid"}</p>
         <p className="mt-5 whitespace-pre-wrap break-words leading-7">{question.prompt || "Pertanyaan belum terbaca."}</p>
         <dl className="mt-5 space-y-3">{letters.map((letter) => <div key={letter} className="flex gap-3 rounded-xl bg-slate-50 p-3 text-sm"><dt className="font-semibold">{letter}</dt><dd className="min-w-0 whitespace-pre-wrap break-words leading-6">{question.options[letter] || "Pilihan belum terbaca."}</dd></div>)}</dl>
-        <div className="mt-5 text-sm leading-7">
+        <div className="mt-5 break-words text-sm leading-7">
           {question.type === "WEIGHTED" ? <p>Bobot: {letters.map((letter) => `${letter}=${question.weights[letter] ?? "belum valid"}`).join("; ")}</p> : <p>Kunci: {question.key || "belum valid"}</p>}
           <h3 className="mt-4 font-semibold">Pembahasan</h3><p className="whitespace-pre-wrap break-words">{question.explanation || "Pembahasan belum tersedia."}</p>
         </div>

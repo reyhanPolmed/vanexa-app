@@ -7,17 +7,18 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit --incremental false",
     "db:migrate": "tsx scripts/migrate.ts",
     "host:create": "tsx scripts/create-host.ts",
     "test": "tsx scripts/test-e2e.ts",
     "test:e2e": "tsx scripts/test-e2e.ts",
     "import:cleanup": "tsx scripts/cleanup-imports.ts",
-    "test:parser": "node --import tsx --test tests/import-template.test.ts"
+    "test:parser": "node --import tsx --test tests/import-template.test.ts",
+    "postinstall": "node scripts/patch-pdfjs.mjs"
   },
   "dependencies": {
     "next": "^16.4.6",
-    "pdfjs-dist": "^6.5.438",
+    "pdfjs-dist": "6.5.438",
     "pg": "^8.23.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",

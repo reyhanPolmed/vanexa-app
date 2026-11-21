@@ -90,3 +90,18 @@ test("unsupported templates and files with no question blocks are rejected", () 
   assert.throws(() => parseTemplate("random text"), /VANEXA-PDF-V1/);
   assert.throws(() => parseTemplate("VANEXA-PDF-V1\nCATEGORY: TIU\nBANK: kosong"), /QUESTION/);
 });
+
+test("malformed reserved markers are not silently accepted as explanation text", () => {
+  for (const marker of ["KEY : C", "key: C", "WEIGHTS : A=5", "QUESTION : 2"]) {
+    const question = parseTemplate(singleTemplate.join("\n").replace("Dua ditambah tiga sama dengan lima.", marker)).questions[0];
+    assert.ok(question.errors.some((e) => e.code === "MALFORMED_MARKER"), marker);
+    assert.ok(question.rawText.includes(marker));
+  }
+});
+
+test("internal blank paragraphs survive in prompt, option, and explanation", () => {
+  const question = parseTemplate(singleTemplate.join("\n").replace("Berapakah jumlah 2 dan 3?", "Paragraf satu.\n\nParagraf dua.").replace("A: 4", "A: Baris satu.\n\nBaris dua.").replace("Dua ditambah tiga sama dengan lima.", "Penjelasan satu.\n\nPenjelasan dua.")).questions[0];
+  assert.equal(question.prompt, "Paragraf satu.\n\nParagraf dua.");
+  assert.equal(question.options.A, "Baris satu.\n\nBaris dua.");
+  assert.equal(question.explanation, "Penjelasan satu.\n\nPenjelasan dua.");
+});

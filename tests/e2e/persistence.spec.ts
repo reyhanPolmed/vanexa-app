@@ -1,6 +1,7 @@
 import { spawn, type ChildProcess } from "node:child_process";
 import { once } from "node:events";
 import { expect, test, type APIRequestContext } from "@playwright/test";
+import { textPdf } from "../fixtures/pdf";
 
 const origin = "http://127.0.0.1:3120";
 
@@ -46,5 +47,11 @@ test("bank ownership and login session survive a production application restart"
     expect(after.status()).toBe(200);
     expect(await after.json()).toEqual(expected);
     expect((await request.get(`${origin}/api/banks/aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa`, { headers: { Cookie: cookie } })).status()).toBe(404);
+    const upload = await request.post(`${origin}/api/imports`, { headers: { Cookie: cookie, Origin: origin, "Content-Type": "application/pdf" }, data: await textPdf() });
+    expect(upload.status()).toBe(201);
+    const { id } = await upload.json();
+    const preview = await request.get(`${origin}/api/imports/${id}`, { headers: { Cookie: cookie } });
+    expect(preview.status()).toBe(200);
+    expect((await preview.json()).draft.preview.questions[0].key).toBe("B");
   } finally { await stop(server); await request.dispose(); }
 });
