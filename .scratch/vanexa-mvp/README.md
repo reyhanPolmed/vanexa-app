@@ -1,6 +1,6 @@
 # Vanexa MVP — Development Tickets
 
-Status: backlog lokal; tiket 01 dan 02 DONE setelah verifikasi. Tiket 03–10 belum diimplementasikan. Tidak ada tiket di tracker eksternal yang dibuat. Label ready-for-agent adalah status antrean, bukan bukti semua keputusan telah disetujui atau semua dependensi sudah selesai.
+Status: backlog lokal; tiket 01–03 DONE setelah verifikasi. Tiket 04–10 belum diimplementasikan. Tidak ada tiket di tracker eksternal yang dibuat. Label ready-for-agent adalah status antrean, bukan bukti semua keputusan telah disetujui atau semua dependensi sudah selesai.
 
 ## Acuan
 
@@ -16,7 +16,7 @@ Jika draf MVP lama bertentangan dengan dokumen lanjutan, gunakan klasifikasi kep
 | --- | --- | --- |
 | 01 | [Akun Host dan Question Bank pribadi](issues/01-host-account.md) — **DONE** | Tidak ada; username/password dan akses pg telah diimplementasikan serta diuji |
 | 02 | [Upload PDF teks dan preview hasil ekstraksi](issues/02-pdf-preview.md) — **DONE** | 01 (DONE) |
-| 03 | [Perbaiki preview dan simpan Question Bank yang dapat dipakai ulang](issues/03-confirm-bank.md) | 02 |
+| 03 | [Perbaiki preview dan simpan Question Bank yang dapat dipakai ulang](issues/03-confirm-bank.md) — **DONE** | 02 (DONE) |
 | 04 | [Buat Room publik dan gabung lobby sebagai guest](issues/04-public-room-lobby.md) | 03 |
 | 05 | [Start serentak via WebSocket dan navigasi kuis mandiri](issues/05-start-quiz.md) | 04 |
 | 06 | [Autosave jawaban dan pulihkan progres setelah refresh](issues/06-autosave-progress.md) | 05 |

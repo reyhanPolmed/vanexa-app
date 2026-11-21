@@ -6,6 +6,7 @@ import { isUuid, requireRevision } from "../mutations";
 import { ImportFailure, letters, type ImportPreview, type PreviewQuestion } from "./limits";
 import { initialEditState, validateEditState, type EditState } from "./editing";
 import { questionFingerprint } from "./duplicates";
+import { draftFromRecord, type DraftRecord } from "./drafts";
 
 type LockedDraft = { original_preview: ImportPreview; edit_state: EditState | null; revision: number; confirmed_bank_id: string | null; confirmation_key: string | null; confirmed_revision: number | null };
 
@@ -18,13 +19,14 @@ async function lockDraft(client: PoolClient, ownerId: string, id: string) {
 
 export async function saveDraft(ownerId: string, id: string, revision: unknown, state: unknown) {
   requireRevision(revision);
-  await transaction(async (client) => {
+  const record = await transaction(async (client) => {
     const draft = await lockDraft(client, ownerId, id);
     if (draft.confirmed_bank_id) throw new ImportFailure("IMPORT_CONFIRMED", "Draft sudah dikonfirmasi. Buka bank soal untuk mengeditnya.", 409);
     if (revision !== draft.revision) throw new ImportFailure("REVISION_CONFLICT", "Draft berubah di tab lain. Muat ulang sebelum menyimpan; salin perubahan Anda terlebih dahulu.", 409);
     const validated = validateEditState(state, draft.original_preview);
-    await client.query("UPDATE import_drafts SET edit_state = $1, preview = $2, revision = revision + 1 WHERE id = $3", [JSON.stringify(validated.state), JSON.stringify(validated.preview), id]);
+    return (await client.query<DraftRecord>("UPDATE import_drafts SET edit_state = $1, preview = $2, revision = revision + 1 WHERE id = $3 RETURNING id, file_name, page_count, original_preview, edit_state, expires_at, revision, confirmed_bank_id", [JSON.stringify(validated.state), JSON.stringify(validated.preview), id])).rows[0];
   });
+  return draftFromRecord(ownerId, record);
 }
 
 export function assertValidBank(preview: ImportPreview) {

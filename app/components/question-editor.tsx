@@ -4,7 +4,7 @@ import { useId, useState } from "react";
 import { parseQuestionSource } from "@/lib/imports/editing";
 import { letters, type Letter, type PreviewQuestion } from "@/lib/imports/limits";
 
-const structureCodes = new Set(["MALFORMED_MARKER", "MISSING_END", "DUPLICATE_MARKER", "MARKER_ORDER", "UNKNOWN_MARKER", "UNEXPECTED_TEXT", "UNEXPECTED_END", "INVALID_QUESTION_BLOCK", "CONFLICTING_SCORE"]);
+const structureCodes = new Set(["MALFORMED_MARKER", "MISSING_END", "DUPLICATE_MARKER", "MARKER_ORDER", "UNKNOWN_MARKER", "UNEXPECTED_TEXT", "UNEXPECTED_END", "INVALID_QUESTION_BLOCK", "CONFLICTING_SCORE", "INVALID_WEIGHT", "INVALID_TYPE"]);
 const hasStructureErrors = (question: PreviewQuestion) => question.errors.some((error) => structureCodes.has(error.code));
 function fieldsFrom(question: PreviewQuestion) {
   return { number: question.sourceNumber, type: question.type, prompt: question.prompt, options: Object.fromEntries(letters.map((letter) => [letter, question.options[letter] ?? ""])) as Record<Letter, string>, key: question.key ?? "", weights: Object.fromEntries(letters.map((letter) => [letter, String(question.weights[letter] ?? "")])) as Record<Letter, string>, explanation: question.explanation };

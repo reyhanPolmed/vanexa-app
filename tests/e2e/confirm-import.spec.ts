@@ -164,3 +164,53 @@ test("ambiguous source is not silently repaired by save, and metadata needs expl
   const current = await draft(request, id);
   expect(current.originalPreview.questions[0].rawText).toContain("KEY : C");
 });
+
+test("ambiguous duplicate weights require explicit source correction before field editing", async ({ page }) => {
+  await login(page.request, "confirm_owner");
+  const lines = singleTemplate.join("\n").replace("SINGLE_CORRECT", "WEIGHTED").replace("KEY: B", "WEIGHTS: A=1;B=2;C=3;D=4;E=5;A=0").split("\n");
+  const id = await upload(page.request, lines);
+  await page.goto(`/imports/${id}`);
+  await page.getByText("Perbaiki soal 1", { exact: true }).click();
+  const editor = page.getByRole("group", { name: "Editor soal 1", exact: true });
+  await expect(editor.getByLabel("Teks sumber untuk diperbaiki")).toHaveValue(/E=5;A=0/);
+  await expect(editor.getByRole("button", { name: "Gunakan editor isian" })).toBeDisabled();
+  await editor.getByLabel("Teks sumber untuk diperbaiki").fill(lines.slice(3).join("\n").replace(";A=0", ""));
+  await editor.getByRole("button", { name: "Gunakan editor isian" }).click();
+  await editor.getByLabel("Pertanyaan", { exact: true }).fill("Pertanyaan yang diperiksa Host.");
+  await page.getByRole("button", { name: "Simpan perbaikan", exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Perbaikan tersimpan." })).toBeVisible();
+  const saved = await draft(page.request, id);
+  expect(saved.preview.questions[0].weights.A).toBe(1);
+  expect(saved.preview.questions[0].errors).toEqual([]);
+  expect(saved.originalPreview.questions[0].rawText).toContain(";A=0");
+});
+
+test("overlapping draft and bank saves acknowledge their own committed revision and content", async ({ request }) => {
+  await login(request, "confirm_race");
+  const id = await upload(request);
+  const initial = await draft(request, id);
+  const firstState = { ...initial.state, bankName: "Snapshot draft A" };
+  const secondState = { ...initial.state, bankName: "Snapshot draft B" };
+  const [first, second] = await Promise.all([save(request, id, 0, firstState), save(request, id, 1, secondState)]);
+  expect(first.status()).toBe(200);
+  const acknowledgement = (await first.json()).draft;
+  expect(acknowledgement.revision).toBe(1);
+  expect(acknowledgement.state.bankName).toBe("Snapshot draft A");
+  expect([200, 409]).toContain(second.status());
+  if (second.status() === 200) {
+    const acknowledgementB = (await second.json()).draft;
+    expect(acknowledgementB.revision).toBe(2);
+    expect(acknowledgementB.state.bankName).toBe("Snapshot draft B");
+  }
+  const current = await draft(request, id);
+  const { bankId } = await (await confirm(request, id, current.revision)).json();
+  const bank = (await (await request.get(`/api/banks/${bankId}`)).json()).bank;
+  const [bankA, bankB] = await Promise.all([
+    request.patch(`/api/banks/${bankId}`, { headers: { Origin: origin }, data: { revision: 0, state: { ...bank.state, bankName: "Snapshot bank A" } } }),
+    request.patch(`/api/banks/${bankId}`, { headers: { Origin: origin }, data: { revision: 1, state: { ...bank.state, bankName: "Snapshot bank B" } } }),
+  ]);
+  expect(bankA.status()).toBe(200);
+  expect((await bankA.json()).bank).toMatchObject({ name: "Snapshot bank A", revision: 1 });
+  expect([200, 409]).toContain(bankB.status());
+  if (bankB.status() === 200) expect((await bankB.json()).bank).toMatchObject({ name: "Snapshot bank B", revision: 2 });
+});

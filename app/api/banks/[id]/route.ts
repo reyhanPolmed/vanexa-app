@@ -22,8 +22,8 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     if (!host) return apiError("UNAUTHORIZED", "Silakan masuk.", 401);
     const { id } = await params;
     const input = await readEditorRequest(request);
-    await editBank(host.id, id, input.revision, input.state);
-    return NextResponse.json({ bank: await bankDetail(host.id, id) }, { headers: { "Cache-Control": "private, no-store" } });
+    const bank = await editBank(host.id, id, input.revision, input.state);
+    return NextResponse.json({ bank }, { headers: { "Cache-Control": "private, no-store" } });
   } catch (error) {
     if (error instanceof ImportFailure) return apiError(error.code, error.message, error.status);
     return apiError("SERVICE_UNAVAILABLE", "Perubahan bank belum tersimpan. Coba lagi.", 503, true);

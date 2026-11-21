@@ -49,4 +49,3 @@ export function validateEditState(value: unknown, original: ImportPreview, allow
   const preview: ImportPreview = { templateVersion: "VANEXA-PDF-V1", bankName: state.bankName, category: state.category, questions, errors };
   return { state, preview, itemPreviews };
 }
-

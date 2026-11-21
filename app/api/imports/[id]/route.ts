@@ -23,8 +23,8 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     if (!host) return apiError("UNAUTHORIZED", "Silakan masuk.", 401);
     const { id } = await params;
     const input = await readEditorRequest(request);
-    await saveDraft(host.id, id, input.revision, input.state);
-    return NextResponse.json({ draft: await findDraft(host.id, id) }, { headers: { "Cache-Control": "private, no-store" } });
+    const draft = await saveDraft(host.id, id, input.revision, input.state);
+    return NextResponse.json({ draft }, { headers: { "Cache-Control": "private, no-store" } });
   } catch (error) {
     if (error instanceof ImportFailure) return apiError(error.code, error.message, error.status);
     return apiError("SERVICE_UNAVAILABLE", "Perbaikan draft belum tersimpan. Coba lagi.", 503, true);
