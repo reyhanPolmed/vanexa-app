@@ -4,7 +4,9 @@
 
 **Blocked by:** 07: Submit pengerjaan dan lihat skor serta pembahasan pribadi
 
-**Status:** ready-for-agent
+**Status:** DONE
+
+**Keputusan:** worker deadline memakai proses Node WebSocket persisten dan PostgreSQL yang sama dengan Next.js. Startup memproses deadline terlewat; finalisasi tidak bergantung browser.
 
 ## Prasyarat keputusan
 
@@ -14,12 +16,12 @@ Label ready-for-agent menunjukkan antrean kerja. Keputusan terbuka bukan persetu
 
 ## Acceptance criteria
 
-- [ ] Deadline memfinalisasi semua pengerjaan aktif menjadi kedaluwarsa dan mengakhiri Room sesuai lifecycle; pengerjaan yang sudah submit tidak dihitung ulang berbeda.
-- [ ] Worker idempoten dan pemeriksaan deadline pada operasi server memakai aturan yang sama dengan autosave.
-- [ ] Restart setelah deadline memproses sesi terlewat; tidak membutuhkan peserta membuka browser agar database akhirnya mencapai state final.
-- [ ] Submit bersamaan deadline menghasilkan satu Result yang konsisten; tidak ada jawaban terlambat masuk.
-- [ ] Peserta melihat waktu habis lalu hasil ketika terhubung; hasil mencakup soal yang tidak dijawab.
-- [ ] Kuis tetap berlangsung ketika Host terputus setelah start; deadline tidak bergeser.
+- [x] Deadline memfinalisasi semua pengerjaan aktif menjadi kedaluwarsa dan mengakhiri Room sesuai lifecycle; pengerjaan yang sudah submit tidak dihitung ulang berbeda.
+- [x] Worker idempoten dan pemeriksaan deadline pada operasi server memakai aturan yang sama dengan autosave.
+- [x] Restart setelah deadline memproses sesi terlewat; tidak membutuhkan peserta membuka browser agar database akhirnya mencapai state final.
+- [x] Submit bersamaan deadline menghasilkan satu Result yang konsisten; tidak ada jawaban terlambat masuk.
+- [x] Peserta melihat waktu habis lalu hasil ketika terhubung; hasil mencakup soal yang tidak dijawab.
+- [x] Kuis tetap berlangsung ketika Host terputus setelah start; deadline tidak bergeser.
 
 ## Pengujian dan demo
 
@@ -33,7 +35,16 @@ Tanpa pause timer ketika koneksi putus atau grace menerima jawaban terlambat.
 
 ## Penyelesaian
 
-- [ ] Implementasi mencakup perilaku pengguna, API/otorisasi, penyimpanan/migrasi yang diperlukan, dan pengujian perilaku relevan.
-- [ ] Lint, typecheck, build, dan pengujian yang relevan dilaporkan dengan hasil nyata; pemeriksaan yang tidak dijalankan disebutkan.
-- [ ] Keputusan yang disepakati dan kontrak terkait diperbarui; tidak ada secret dalam source/log. Tidak membuat ADR kecuali memenuhi kriteria domain-modeling.
+- [x] Implementasi mencakup perilaku pengguna, API/otorisasi, penyimpanan/migrasi yang diperlukan, dan pengujian perilaku relevan.
+- [x] Lint, typecheck, build, dan pengujian yang relevan dilaporkan dengan hasil nyata; pemeriksaan yang tidak dijalankan disebutkan.
+- [x] Keputusan yang disepakati dan kontrak terkait diperbarui; tidak ada secret dalam source/log. Tidak membuat ADR kecuali memenuhi kriteria domain-modeling.
 
+
+## Hasil verifikasi gabungan 08–10
+
+- Migrasi 007 pada database aplikasi: PASS.
+- Parser: 13/13 PASS; production build akhir, lint dan typecheck: PASS.
+- Satu regresi penuh: 49/50 PASS. Satu gagal pada parameter SQL fixture recovery, sebelum worker dijalankan; fixture diperbaiki.
+- Verifikasi ulang terbatas setelah koreksi fixture, hydration refresh, dan lint: 7/7 PASS (enam skenario baru + regresi refresh tiket 06). Tidak mengulang seluruh suite.
+- Recovery benar-benar menghentikan/start ulang proses worker dalam schema database test terisolasi, tanpa browser/API yang memicu finalisasi; memeriksa Result tersimpan, peserta belum membuka kuis, grace crash, serta idempotensi restart berikutnya.
+- Layanan lokal Next.js HTTP 200 dan health worker OK. Deployment publik, supervisor production, load test, serta failover infrastruktur belum diverifikasi.

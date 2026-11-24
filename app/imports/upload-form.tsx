@@ -26,7 +26,7 @@ export function UploadForm() {
   }}>
     <div>
       <label className="field-label" htmlFor="pdf">File PDF</label>
-      <input className="field p-3 text-sm file:mr-4 file:rounded-md file:border-0 file:bg-indigo-50 file:px-3 file:py-1 file:text-indigo-700" type="file" id="pdf" name="pdf" accept="application/pdf,.pdf" required disabled={pending} aria-describedby="upload-help" />
+      <input className="field p-3 text-sm file:mr-4 file:rounded-md file:border-0 file:bg-red-50 file:px-3 file:py-1 file:text-red-700" type="file" id="pdf" name="pdf" accept="application/pdf,.pdf" required disabled={pending} aria-describedby="upload-help" />
       <p id="upload-help" className="mt-3 text-sm leading-6 text-slate-500">PDF teks satu kolom, maksimal 5 MiB, 50 halaman, dan 200 soal. Scan, gambar, dan PDF bersandi tidak didukung.</p>
     </div>
     {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{error}</p>}

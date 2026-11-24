@@ -40,7 +40,7 @@ export function validateEditState(value: unknown, original: ImportPreview, allow
   const questions = itemPreviews.filter((_, index) => !items[index].discarded);
   const errors: ImportPreview["errors"] = [];
   if (!state.bankName || state.bankName.length > 120) errors.push({ field: "bankName", code: "INVALID_BANK_NAME", message: "Nama bank wajib diisi, maksimal 120 karakter." });
-  if (!["TIU", "TWK", "TKP"].includes(state.category)) errors.push({ field: "category", code: "INVALID_CATEGORY", message: "Kategori harus TIU, TWK, atau TKP." });
+  if (!["TIU", "TWK", "TKP", "RANDOM"].includes(state.category)) errors.push({ field: "category", code: "INVALID_CATEGORY", message: "Kategori harus TIU, TWK, TKP, atau RANDOM." });
   if (!state.reviewedDocument) errors.push(...original.errors.filter((error) => !["bankName", "category"].includes(error.field)));
   if (!questions.length) errors.push({ field: "questions", code: "NO_QUESTIONS", message: "Minimal satu soal valid harus dipertahankan." });
   const counts = new Map<string, number>();

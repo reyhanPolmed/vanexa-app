@@ -18,7 +18,9 @@ Buka http://localhost:3000.
 
 Salin `.env.example` ke `.env.local` dan isi koneksi PostgreSQL database khusus Vanexa. `APP_ORIGIN` harus persis origin browser, termasuk port. Gunakan HTTPS pada production; cookie session production memakai Secure. Jangan commit `.env.local`.
 
-Akun awal dibuat oleh pengelola dari terminal, tanpa email atau pendaftaran publik:
+Akun dapat dibuat melalui **Masuk → Daftar akun**, atau langsung di http://localhost:3000/auth?mode=register. Gunakan username 3–32 huruf/angka/underscore, password 12–128 karakter, dan konfirmasi password. Akun tersimpan di PostgreSQL dan langsung login setelah pendaftaran. Klik nama akun pada header untuk membuka **Logout**.
+
+Pengelola juga dapat membuat akun dari terminal tanpa email:
 
 ```powershell
 $env:HOST_USERNAME = 'nama_host'
@@ -48,9 +50,9 @@ npm.cmd run typecheck
 npm.cmd test
 ```
 
-`npm test` menjalankan uji parser template, membuat production build terisolasi dalam `.next-e2e`, kemudian menjalankan E2E browser dan uji restart production. `TEST_DATABASE_URL` harus menunjuk database disposable bernama tepat `vanexa_test`: setup tes menghapus dan membuat ulang schema public di database tersebut. Jangan arahkan ke data yang ingin dipertahankan. Port 3100 dan 3120 harus kosong; development server utama tidak perlu dihentikan karena output tes dipisahkan.
+`npm test` menjalankan uji parser template, membuat production build terisolasi dalam `.next-e2e`, kemudian menjalankan E2E browser dan uji restart production/worker. `TEST_DATABASE_URL` harus menunjuk database disposable bernama tepat `vanexa_test`: setup tes menghapus dan membuat ulang schema public di database tersebut. Jangan arahkan ke data yang ingin dipertahankan. Port 3100, 3101, 3120, dan 3123 harus kosong; development server utama tidak perlu dihentikan karena output tes dipisahkan.
 
-Seam: perilaku UI/API melalui database PostgreSQL nyata; fixture menyiapkan akun/bank tanpa membuat fitur impor di luar tiket. Tidak ada mock penyimpanan atau pemeriksaan hasil melalui query internal database.
+Seam: perilaku UI/API melalui database PostgreSQL nyata; fixture menyiapkan akun/bank tanpa mock penyimpanan. Uji recovery worker memakai schema terisolasi di database disposable dan memeriksa hasil tersimpan langsung, tanpa browser/API yang dapat memicu finalisasi sebagai efek samping.
 
 Detail kebutuhan ada pada `docs/IMPLEMENTATION-SPEC.md`; backlog pada `docs/tickets/README.md`.
 
@@ -83,3 +85,21 @@ npm.cmd run import:cleanup
 ```
 
 Untuk deployment, jadwalkan perintah cleanup tiap 15 menit melalui scheduler platform. Scheduler belum dipasang pada mesin/deployment oleh tiket ini; expiry akses 24 jam tetap berlaku tanpa scheduler. Jika memakai output standalone, pastikan `scripts/pdf-extract.mjs`, paket PDF.js dan dependency opsional Node-nya ikut dikemas; konfigurasi tracing sudah mencantumkannya. Endpoint upload memakai runtime Node dan membutuhkan kemampuan spawn child process; bukan Edge runtime.
+
+## Realtime dan deadline (tiket 08–10)
+
+Jalankan dua proses dengan DATABASE_URL yang sama:
+
+```powershell
+npm.cmd run dev
+# Terminal kedua:
+npm.cmd run ws
+```
+
+Untuk production, jalankan `npm run db:migrate`, `npm run build`, lalu kelola `npm run start` dan `npm run ws` sebagai dua service persisten dengan restart otomatis. Hosting Next.js saja belum menjalankan worker. WS_PORT default 3001; APP_ORIGIN harus sama dengan origin website. Set NEXT_PUBLIC_WS_URL sebelum build ke URL WebSocket publik (wss pada HTTPS), lalu arahkan reverse proxy ke layanan WS. Health tersedia di `/health` pada port WS. Deployment publik/reverse proxy belum diverifikasi oleh pengujian lokal.
+
+Room bersifat permanen dan tetap muncul setelah pengerjaan selesai. Host dapat memulai sesi baru; hasil sebelumnya tetap ada di Riwayat hasilmu. Worker memfinalisasi pengerjaan sesi melewati deadline setiap detik dan saat startup; skor peserta yang sudah submit tidak diubah. Sesi juga selesai bila seluruh peserta sudah submit. Peserta offline tetap dihitung dari jawaban tersimpan. HTTP memeriksa deadline sebagai fallback. Deadline memakai jam PostgreSQL; reconnect tidak memperpanjang waktu.
+
+Host online selama minimal satu tab terotorisasi terhubung. Heartbeat 15 detik memperbarui lease 60 detik. Room tidak ditutup ketika Host offline. Pengguna login otomatis bergabung dengan username dan identitas account_id; guest mengisi nickname dan memakai cookie. Reconnect mengambil snapshot tanpa mengganti peserta atau sesi. Kehilangan cookie guest tidak dipulihkan melalui nickname.
+
+Leaderboard privat bagi anggota Room/Host, tanpa jawaban peserta lain. Skor seri memakai rank 1,1,3; peserta aktif tanpa skor parsial. Status final mengikuti deadline Room, bukan peserta pertama selesai.

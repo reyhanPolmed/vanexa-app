@@ -2,14 +2,15 @@ import "server-only";
 import { createHash, randomBytes } from "node:crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { database } from "./db";
+import { database, transaction } from "./db";
+import type { PoolClient } from "pg";
 
 export const sessionCookie = "vanexa_host_session";
 export const sessionLifetime = 7 * 24 * 60 * 60;
 export const tokenHash = (token: string) => createHash("sha256").update(token).digest("hex");
 
 export function safeDestination(value: unknown) {
-  return typeof value === "string" && /^(?:\/banks(?:\/[a-fA-F0-9-]{36})?|\/imports\/(?:new|[a-fA-F0-9-]{36}))$/.test(value) ? value : "/banks";
+  return typeof value === "string" && /^(?:\/banks(?:\/[a-fA-F0-9-]{36})?|\/imports\/(?:new|[a-fA-F0-9-]{36})|\/rooms\/new|\/rooms\/[a-fA-F0-9-]{36}(?:\/(?:quiz|result))?)$/.test(value) ? value : "/banks";
 }
 
 export function allowedOrigin(request: Request) {
@@ -32,21 +33,15 @@ export async function requireHost(destination = "/banks") {
   return host;
 }
 
-export async function createSession(hostId: string, previousToken?: string) {
+export async function createSession(hostId: string, previousToken?: string, client?: PoolClient) {
   const token = randomBytes(32).toString("hex");
-  const client = await database().connect();
-  try {
-    await client.query("BEGIN");
-    if (previousToken) await client.query("DELETE FROM host_sessions WHERE token_hash = $1", [tokenHash(previousToken)]);
-    await client.query("DELETE FROM host_sessions WHERE expires_at <= now()");
-    await client.query("INSERT INTO host_sessions (token_hash, host_id, expires_at) VALUES ($1, $2, now() + interval '7 days')", [tokenHash(token), hostId]);
-    await client.query("COMMIT");
-  } catch (error) {
-    await client.query("ROLLBACK");
-    throw error;
-  } finally {
-    client.release();
-  }
+  const save = async (target: PoolClient) => {
+    if (previousToken) await target.query("DELETE FROM host_sessions WHERE token_hash = $1", [tokenHash(previousToken)]);
+    await target.query("DELETE FROM host_sessions WHERE expires_at <= now()");
+    await target.query("INSERT INTO host_sessions (token_hash, host_id, expires_at) VALUES ($1, $2, now() + interval '7 days')", [tokenHash(token), hostId]);
+  };
+  if (client) await save(client);
+  else await transaction(save);
   return token;
 }
 

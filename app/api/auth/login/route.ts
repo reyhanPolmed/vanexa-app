@@ -28,6 +28,7 @@ export async function POST(request: Request) {
     const host = result.rows[0];
     const valid = await verifyPassword(input.password, host?.password_hash);
     if (!host || !valid) return apiError("INVALID_CREDENTIALS", "Username atau password tidak sesuai.", 401);
+    await database().query("DELETE FROM auth_attempts WHERE bucket = $1", [tokenHash(username)]);
     const response = NextResponse.json({ destination: safeDestination(input.next) });
     response.headers.set("Cache-Control", "no-store");
     const previousToken = (await cookies()).get(sessionCookie)?.value;

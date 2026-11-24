@@ -1,6 +1,6 @@
 # Vanexa MVP — Development Tickets
 
-Status: backlog lokal; tiket 01–03 DONE setelah verifikasi. Tiket 04–10 belum diimplementasikan. Tidak ada tiket di tracker eksternal yang dibuat. Label ready-for-agent adalah status antrean, bukan bukti semua keputusan telah disetujui atau semua dependensi sudah selesai.
+Status: backlog lokal; tiket 01–10 DONE setelah implementasi dan verifikasi yang dicatat pada masing-masing tiket. Tidak ada tiket di tracker eksternal yang dibuat. Penyelesaian backlog tidak menyatakan deployment produksi telah diverifikasi.
 
 ## Acuan
 
@@ -17,13 +17,13 @@ Jika draf MVP lama bertentangan dengan dokumen lanjutan, gunakan klasifikasi kep
 | 01 | [Akun Host dan Question Bank pribadi](issues/01-host-account.md) — **DONE** | Tidak ada; username/password dan akses pg telah diimplementasikan serta diuji |
 | 02 | [Upload PDF teks dan preview hasil ekstraksi](issues/02-pdf-preview.md) — **DONE** | 01 (DONE) |
 | 03 | [Perbaiki preview dan simpan Question Bank yang dapat dipakai ulang](issues/03-confirm-bank.md) — **DONE** | 02 (DONE) |
-| 04 | [Buat Room publik dan gabung lobby sebagai guest](issues/04-public-room-lobby.md) | 03 |
-| 05 | [Start serentak via WebSocket dan navigasi kuis mandiri](issues/05-start-quiz.md) | 04 |
-| 06 | [Autosave jawaban dan pulihkan progres setelah refresh](issues/06-autosave-progress.md) | 05 |
-| 07 | [Submit pengerjaan dan lihat skor serta pembahasan pribadi](issues/07-submit-result.md) | 06 |
-| 08 | [Finalisasi otomatis saat deadline dan pulihkan sesi setelah restart](issues/08-server-deadline.md) | 07 |
-| 09 | [Leaderboard room dengan peringkat sementara dan final](issues/09-leaderboard.md) | 07 |
-| 10 | [Reconnect realtime dan tutup lobby bila Host tidak kembali](issues/10-reconnect-host-presence.md) | 05 |
+| 04 | [Buat Room publik dan gabung lobby sebagai guest](issues/04-public-room-lobby.md) — **DONE** | 03 (DONE) |
+| 05 | [Start serentak via WebSocket dan navigasi kuis mandiri](issues/05-start-quiz.md) — **DONE** | 04 (DONE) |
+| 06 | [Autosave jawaban dan pulihkan progres setelah refresh](issues/06-autosave-progress.md) — **DONE** | 05 (DONE) |
+| 07 | [Submit pengerjaan dan lihat skor serta pembahasan pribadi](issues/07-submit-result.md) — **DONE** | 06 (DONE) |
+| 08 | [Finalisasi otomatis saat deadline dan pulihkan sesi setelah restart](issues/08-server-deadline.md) — **DONE** | 07 (DONE) |
+| 09 | [Leaderboard room dengan peringkat sementara dan final](issues/09-leaderboard.md) — **DONE** | 07 (DONE) |
+| 10 | [Reconnect realtime dan tutup lobby bila Host tidak kembali](issues/10-reconnect-host-presence.md) — **DONE** | 05 (DONE) |
 
 ## Cara mengerjakan
 

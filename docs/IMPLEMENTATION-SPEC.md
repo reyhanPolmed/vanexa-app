@@ -4,6 +4,12 @@ Status: spesifikasi MVP dengan keputusan terbuka bertanda **Usulan**. Dokumen in
 
 ## 1. Keputusan final
 
+Penghapusan Room: DELETE `/api/rooms/:id` memerlukan session akun pemilik Room dan origin yang sesuai. Server mengunci Room (urutan lock yang sama dengan join/start/save/submit), lalu menghapus Attempt/Answer, Session, peserta/presence, dan snapshot soal dalam satu transaksi. Referensi current_session_id dilepas sebelum penghapusan Session; Question Bank asli tidak dihapus. Tombol tersedia hanya bagi pembuat pada lobby, kuis, dan hasil; dialog menjelaskan penghapusan permanen dan penghentian sesi aktif. Event room.deleted dikirim setelah commit; peserta diarahkan ke Home. Polling 404 memulihkan klien yang kehilangan event. Pengujian perubahan ini belum dijalankan sesuai preferensi pengguna.
+
+Pembaruan terbaru sesuai persetujuan B: Room permanen dapat memiliki banyak Quiz Session. Host memulai sesi berikutnya setelah sesi berjalan selesai (deadline atau seluruh peserta submit). `quiz_sessions` menyimpan nomor sesi, start/deadline/status; Room menyimpan current_session_id. Attempt unik per session/participant, Answer tetap merujuk Attempt sehingga hasil lama tidak ditimpa. Riwayat hasil pribadi tersedia lewat `/rooms/:id/result?attempt=:id`, dengan pemeriksaan membership/pemilik. Leaderboard memproyeksikan sesi terbaru. Roster setiap sesi adalah anggota Room yang sudah bergabung saat Host menekan mulai; peserta offline tetap memperoleh hasil dari jawaban tersimpan. Peserta baru dapat bergabung saat lobby atau antar sesi, tetapi bukan ketika sesi RUNNING. Room tidak lagi ditutup karena Host offline dan tetap terdaftar setelah sesi selesai.
+
+Pengguna login bergabung memakai username server, identitas peserta terhubung ke account_id (unik per Room/account), termasuk otorisasi API jawaban, hasil, dan WebSocket. Guest tetap memakai nickname/cookie. Kategori RANDOM didukung dari impor, bank, hingga Room; scoring tetap mengikuti SINGLE_CORRECT atau WEIGHTED eksplisit dalam soal, bukan jenis kategori. Migrasi 008–009 menambahkan metadata kategori/account/session dan mempertahankan ID hasil lama. Pengujian, lint, typecheck, serta build perubahan ini belum dijalankan sesuai preferensi pengguna.
+
 1. Latihan informal kelompok belajar, tiga kategori TIU/TWK/TKP, soal berasal dari impor host.
 2. Room publik; host berakun; peserta boleh guest dengan nickname. Hanya host memulai. Tidak ada join baru setelah mulai; reconnect peserta lama tetap perlu didukung.
 3. Mulai bersamaan, navigasi mandiri, urutan soal/opsi sama. Waktu dan deadline ditentukan server.
@@ -16,6 +22,8 @@ Status: spesifikasi MVP dengan keputusan terbuka bertanda **Usulan**. Dokumen in
 10. Next.js, PostgreSQL, dan WebSocket dipilih. Seam utama pengujian adalah E2E bank soal → room → multiplayer → hasil.
 
 ## 2. Kondisi repository
+
+Pembaruan setelah redesign (permintaan pengguna): pendaftaran mandiri ditambahkan pada POST `/api/auth/register`, memakai tabel hosts/host_sessions yang sudah ada. Validasi username 3–32 huruf/angka/underscore tanpa membedakan kapital, password 12–128 karakter, konfirmasi password, penolakan username duplikat (409), dan pembatasan 5 percobaan per username per 15 menit. Unique constraint menjaga race pendaftaran. Pembuatan akun dan session berada dalam satu transaksi, sehingga kegagalan session membatalkan akun baru. Password scrypt dan cookie HttpOnly mengikuti mekanisme login yang sama. Dropdown nama menyediakan logout POST yang mencabut session. Tidak ada migrasi tambahan. Pengujian perubahan ini sengaja tidak dijalankan sesuai instruksi pengguna; hasil verifikasi tiket sebelumnya bukan bukti perubahan ini lulus.
 
 Pembaruan tiket 01: Host masuk memakai username/password sesuai keputusan pengguna. Implementasi memakai driver pg dengan query berparameter, session opaque yang disimpan sebagai hash di PostgreSQL, password scrypt, cookie HttpOnly/SameSite=Lax/Secure pada production, dan pembuatan akun melalui perintah pengelola. Username case-insensitive; email dan provider eksternal tidak diperlukan. Next.js 16.4.6 dan React 19.3.1 menggantikan dependency scaffold lama setelah audit keamanan. Metadata Question Bank dan ownership sudah tersedia; fitur isi soal tetap milik tiket berikutnya.
 
@@ -31,6 +39,17 @@ Repository memiliki migrasi akun/session/metadata bank, halaman dan API login/lo
 | Di luar produk awal | Pembayaran, LMS, AI generation, gamifikasi besar, sertifikasi hasil/anti-cheat kuat |
 
 ## 4. Arsitektur yang diusulkan
+
+### Keputusan implementasi tiket 08–10 (disetujui)
+
+- Layanan Node WebSocket persisten juga menjalankan maintenance deadline setiap detik, batch 100 Room. Jalankan bersama Next.js dengan database PostgreSQL yang sama. Startup segera mencari deadline terlewat; tidak perlu browser. `npm run ws` menjalankan migrasi terlebih dahulu. Host putus saat RUNNING tidak menggeser deadline.
+- Finalisasi, submit, dan autosave mengunci Room sebelum Attempt. Pemeriksaan menggunakan `clock_timestamp()` PostgreSQL, termasuk di statement tulis jawaban/submit; transaksi yang menunggu lock tidak memakai waktu awal transaksi. Semua peserta, termasuk yang belum membuka kuis, mendapat Attempt EXPIRED dan skor jawaban tersimpan saat deadline. Attempt SUBMITTED dipertahankan.
+- Host online selama minimal satu tab dengan session Host sah terhubung ke Room. Lease koneksi tersimpan 60 detik, diperbarui setiap 15 detik; socket close terdeteksi langsung, crash/jaringan mati terdeteksi paling lambat saat lease habis. Grace 5 menit dimulai dari waktu offline terdeteksi, disimpan pada Room, dan bertahan setelah restart. Host kembali sebelum batas membatalkan grace; setelah batas Room CLOSED dengan alasan HOST_OFFLINE. Kehadiran melalui cookie guest saja tidak memberi kewenangan Host.
+- Leaderboard hanya bagi Host/peserta Room. Skor sama mendapat rank sama (1,1,3); urutan seri stabil berdasarkan joinedAt lalu ID, tanpa kecepatan. Peserta ACTIVE tidak memiliki skor/rank parsial. Label final hanya ketika Room FINISHED, termasuk bila semua peserta submit lebih awal.
+- Mutasi HTTP memakai domain service yang sama dengan worker. `pg_notify` dalam transaksi mengirim invalidasi setelah commit, bukan antrean event tahan restart. Subscribe/reconnect selalu memperoleh snapshot PostgreSQL. Klien mengabaikan event ID duplikat/version lama, mengambil snapshot untuk gap, polling fallback 10 detik, retry socket 1–30 detik dengan jitter. Event tidak membawa jawaban/kunci. Tidak menambah Redis/outbox persisten untuk MVP.
+- Snapshot HTTP Room tersedia di `GET /api/rooms/:id` (bukan suffix `/state`). Respons menambahkan hostOfflineSince, closeReason, version, serverNow dan online per peserta. Endpoint leaderboard terotorisasi `GET /api/rooms/:id/leaderboard` mengembalikan roomId, version, final, entries {participantId,nickname,status,score,rank}.
+
+Bagian usulan historis di bawah belum seluruhnya diperbarui oleh tiket 04–07; keputusan tiket 08–10 di atas menjadi acuan untuk deadline, presence, dan leaderboard.
 
 **Usulan, belum final:** satu repository TypeScript, Next.js App Router untuk UI dan HTTP API; layanan Node persisten untuk WebSocket dan pemrosesan deadline; PostgreSQL sebagai sumber kebenaran. Keduanya memakai domain service dan kontrak yang sama. Tidak perlu microservices atau Redis untuk tahap satu instance realtime.
 

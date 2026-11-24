@@ -21,7 +21,7 @@ export function QuestionEditor({ source, number, onChange, disabled }: { source:
   const [fields, setFields] = useState(() => fieldsFrom(parsed));
   function update(next: Fields) { setFields(next); onChange(sourceFrom(next)); }
   return <details className="mt-5">
-    <summary className="cursor-pointer text-sm font-medium text-indigo-700">Perbaiki soal {number}</summary>
+    <summary className="cursor-pointer text-sm font-medium text-red-700">Perbaiki soal {number}</summary>
     <fieldset disabled={disabled} aria-label={`Editor soal ${number}`} className="mt-4 space-y-4 rounded-xl border border-slate-200 p-4">
       {raw ? <>
         <label className="field-label" htmlFor={`${prefix}-raw`}>Teks sumber untuk diperbaiki</label>

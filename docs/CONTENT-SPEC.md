@@ -2,7 +2,13 @@
 
 Status: keputusan produk berasal dari wawancara. Template impor v1 dan batas impor disetujui pengguna pada 2026-11-21 untuk tiket 02; struktur halaman dan microcopy dapat disempurnakan. Dokumen ini menetapkan konten produk, bukan menyediakan bank soal CPNS bawaan.
 
+Arahan visual terbaru: mengikuti komposisi `Vanexa_ ui.png` dan referensi editorial malakabooks.com, dengan identitas Vanexa dan primary merah #BA2931. Latar putih hangat #FCFBF9, teks arang, Manrope lokal (OFL), kartu geometris, ilustrasi kuis vektor, serta navigasi responsif. Tema merah diterapkan ke kontrol bersama termasuk kuis/hasil; warna status benar/salah/koneksi tetap memiliki makna masing-masing.
+
+Pembaruan permintaan pengguna: daftar akun mandiri username/password tersedia pada `/auth?mode=register`, tanpa email. Akun dan session disimpan atomik di PostgreSQL menggunakan tabel yang sudah ada; password memakai hash scrypt. Username 3–32 karakter, password 12–128 karakter dan konfirmasi. Pendaftaran berhasil langsung login. Klik nama di header membuka menu Bank soal pribadi dan Logout. Container halaman mengikuti lebar window dengan padding responsif; lebar teks, form login, dan dialog tetap dibatasi demi keterbacaan. Setelah pengerjaan selesai, kedua tombol Kembali pada hasil menuju Home. Timer kuis tanpa ikon jam. Perubahan ini belum diuji atas permintaan pengguna.
+
 ## 1. Suara dan batas konten
+
+Pembaruan mobile dan room permanen: baris peserta memisahkan username dari badge/status/jam. Tombol aksi bertulisan tidak memakai ikon dekoratif. Kategori Random (`CATEGORY: RANDOM`) menampung topik non-SKD. Peserta login otomatis bergabung sebagai username; hanya guest mengisi nickname. Satu tombol navigasi kuis berubah menjadi “Kirim jawaban” pada soal terakhir atau saat soal aktif adalah satu-satunya yang belum dijawab, serta setelah semua soal dijawab. Klik membuka modal konfirmasi dengan jumlah jawaban kosong/tersimpan; konfirmasi menunggu autosave selesai. Room tetap terlihat, Host dapat memilih “Mulai sesi baru”, dan hasil lama tersedia pada “Riwayat hasilmu”. Timer mengakhiri pengerjaan sesi, bukan masa hidup Room.
 
 - Bahasa utama: Indonesia, ringkas, langsung, ramah.
 - Pesan utama: “Latihan soal, belajar bersama.” Subteks: “Pilih kategori, masuk room, dan kerjakan soal bersama kelompokmu.”
@@ -17,16 +23,16 @@ Rute berikut merupakan usulan; perubahan rute tidak mengubah kebutuhan produk.
 
 | Halaman | Konten utama | Aksi dan keadaan |
 | --- | --- | --- |
-| Home `/` | Identitas Vanexa, pesan utama, tiga card kategori dengan nama lengkap dan deskripsi singkat | “Lihat room”, “Kelola soal”, “Masuk sebagai host” |
+| Home `/` | Hero dua kolom, tiga kartu kategori, daftar room dari data server dengan filter Semua/TIU/TWK/TKP, ajakan mengelola bank | “Mulai Latihan” ke kategori, “Jelajahi Room” ke daftar, “Kelola soal”, “Masuk”; tanpa room tampil empty state, kegagalan muat dibedakan dari daftar kosong |
 | Kategori `/categories/{category}` | Judul kategori; room publik: nama, jumlah soal, peserta, durasi, status | “Gabung room”, “Buat room”; kosong: “Belum ada room yang menunggu peserta.”; error: “Room belum berhasil dimuat. Coba lagi.” |
-| Akses host `/auth` | Form masuk dan pendaftaran sesuai metode autentikasi yang nanti dipilih | Pertahankan tujuan pengguna setelah login; guest tidak harus lewat halaman ini |
+| Akun `/auth` | Masuk atau daftar memakai username/password; konfirmasi password saat daftar | Pertahankan tujuan setelah login/daftar; nama akun membuka Logout; guest tetap dapat bergabung tanpa akun |
 | Bank soal `/banks` | Daftar bank milik host, kategori, jumlah soal, status kelengkapan | “Impor PDF”, “Lihat soal”, “Gunakan untuk room”; kosong: “Impor PDF untuk membuat bank soal pertama.” |
 | Detail bank `/banks/{id}` | Pertanyaan, opsi, jenis skor, kunci/bobot, pembahasan; hanya pemilik | Editor soal hasil impor digabung di sini atau di preview; jangan buat dashboard LMS |
 | Preview impor `/imports/{id}` | Nama file, ringkasan valid/invalid/duplikat, daftar soal dan error per field, editor | “Perbaiki”, “Buang soal”, “Konfirmasi impor”; jumlah akhir ditampilkan sebelum simpan |
 | Buat room `/rooms/new` | Nama room, kategori, pilihan bank, durasi; keterangan “Room dapat ditemukan semua pengunjung.” | “Buat room”; bank kosong: tautan impor; bank tidak valid menonaktifkan pembuatan |
 | Lobby `/rooms/{id}` | Nama room, kategori, jumlah soal, durasi, daftar nickname, status koneksi, formulir nickname untuk guest | “Gabung”, “Mulai kuis” khusus host; “Menunggu host memulai kuis”; peserta baru ditolak setelah mulai |
 | Kuis `/rooms/{id}/quiz` | Nomor/total soal, teks, opsi A–E, timer, navigasi nomor, legenda terjawab/belum, status simpan | “Sebelumnya”, “Berikutnya”, “Selesaikan”; konfirmasi selesai menyebut jumlah soal kosong dan jawaban akan dikunci |
-| Hasil `/rooms/{id}/result` | Skor sendiri, jumlah kosong, rincian per soal, leaderboard nickname/skor | “Lihat pembahasan”, “Kembali ke kategori”; jelaskan “Peringkat sementara” selama masih ada pengerjaan |
+| Hasil `/rooms/{id}/result` | Skor sendiri, jumlah kosong, rincian per soal, leaderboard nickname/skor | “Lihat pembahasan”, “Kembali ke kategori”; “Peringkat sementara” selama Room RUNNING, “Peringkat final” setelah Room FINISHED |
 
 Home dan daftar room tetap sederhana; pengelolaan bank dan impor diletakkan di area host. Lobby, kuis, dan hasil adalah keadaan berbeda dari Room. Tidak perlu halaman terpisah untuk unggah: gunakan entry action dari bank soal.
 

@@ -13,6 +13,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    ".vanexa-setup/**",
+    "test-results/**",
+    "playwright-report/**",
   ]),
 ]);
 

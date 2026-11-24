@@ -6,7 +6,7 @@ import { initialEditState, parseQuestionSource, validateEditState } from "./impo
 import { assertValidBank, questionValues } from "./imports/confirm";
 import { duplicateWarnings } from "./imports/duplicates";
 
-export type QuestionBank = { id: string; name: string; category: "TIU" | "TWK" | "TKP" };
+export type QuestionBank = { id: string; name: string; category: "TIU" | "TWK" | "TKP" | "RANDOM" };
 
 export async function listBanks(ownerId: string) {
   return (await database().query<QuestionBank>(

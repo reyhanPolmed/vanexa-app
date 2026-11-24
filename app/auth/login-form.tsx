@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export function LoginForm({ destination }: { destination: string }) {
+export function LoginForm({ destination, mode = "login" }: { destination: string; mode?: "login" | "register" }) {
+  const registering = mode === "register";
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
@@ -12,12 +13,16 @@ export function LoginForm({ destination }: { destination: string }) {
     event.preventDefault();
     if (pending) return;
     const form = new FormData(event.currentTarget);
+    if (registering && form.get("password") !== form.get("confirmPassword")) {
+      setError("Konfirmasi password tidak sama.");
+      return;
+    }
     setPending(true);
     setError("");
     try {
-      const response = await fetch("/api/auth/login", {
+      const response = await fetch(registering ? "/api/auth/register" : "/api/auth/login", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: form.get("username"), password: form.get("password"), next: destination }),
+        body: JSON.stringify({ username: form.get("username"), password: form.get("password"), confirmPassword: form.get("confirmPassword"), next: destination }),
       });
       const data = await response.json();
       if (!response.ok) { setError(data.message); return; }
@@ -33,10 +38,12 @@ export function LoginForm({ destination }: { destination: string }) {
     </div>
     <div>
       <label htmlFor="password" className="field-label">Password</label>
-      <input className="field" id="password" type="password" name="password" autoComplete="current-password" required maxLength={128} />
+      <input className="field" id="password" type="password" name="password" autoComplete={registering ? "new-password" : "current-password"} required minLength={registering ? 12 : undefined} maxLength={128} aria-describedby={registering ? "password-help" : undefined} />
+      {registering && <p id="password-help" className="mt-2 text-xs text-slate-500">Gunakan 12–128 karakter.</p>}
     </div>
+    {registering && <div><label htmlFor="confirm-password" className="field-label">Konfirmasi password</label><input className="field" id="confirm-password" type="password" name="confirmPassword" autoComplete="new-password" required minLength={12} maxLength={128} /></div>}
     {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">{error}</p>}
-    <button type="submit" className="primary w-full" disabled={pending}>{pending ? "Memeriksa…" : "Masuk"}</button>
-    <p role="status" className="sr-only">{pending ? "Memeriksa username dan password" : ""}</p>
+    <button type="submit" className="primary w-full" disabled={pending}>{pending ? (registering ? "Membuat akun…" : "Memeriksa…") : (registering ? "Daftar akun" : "Masuk")}</button>
+    <p role="status" className="sr-only">{pending ? (registering ? "Menyimpan akun baru" : "Memeriksa username dan password") : ""}</p>
   </form>;
 }

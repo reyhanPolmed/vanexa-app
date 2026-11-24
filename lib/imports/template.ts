@@ -99,7 +99,7 @@ export function parseTemplate(text: string): ImportPreview {
   finish(false);
   preview.category = metadata.get("CATEGORY") ?? "";
   preview.bankName = metadata.get("BANK") ?? "";
-  if (!["TIU", "TWK", "TKP"].includes(preview.category)) preview.errors.push(issue("category", "INVALID_CATEGORY", "CATEGORY harus TIU, TWK, atau TKP."));
+  if (!["TIU", "TWK", "TKP", "RANDOM"].includes(preview.category)) preview.errors.push(issue("category", "INVALID_CATEGORY", "CATEGORY harus TIU, TWK, TKP, atau RANDOM."));
   if (!preview.bankName || preview.bankName.length > 120) preview.errors.push(issue("bankName", "INVALID_BANK_NAME", "Nama BANK wajib diisi, maksimal 120 karakter."));
   if (!preview.questions.length) throw new ImportFailure("NO_QUESTIONS", "Tidak ditemukan blok QUESTION. Gunakan template standar.");
   const counts = new Map<string, number>();

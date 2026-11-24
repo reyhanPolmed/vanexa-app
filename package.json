@@ -14,7 +14,10 @@
     "test:e2e": "tsx scripts/test-e2e.ts",
     "import:cleanup": "tsx scripts/cleanup-imports.ts",
     "test:parser": "node --import tsx --test tests/import-template.test.ts",
-    "postinstall": "node scripts/patch-pdfjs.mjs"
+    "ws": "tsx server/ws-server.ts",
+    "postinstall": "node scripts/patch-pdfjs.mjs",
+    "predev": "npm run db:migrate",
+    "prews": "npm run db:migrate"
   },
   "dependencies": {
     "next": "^16.4.6",
@@ -22,7 +25,8 @@
     "pg": "^8.23.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "server-only": "^0.0.1"
+    "server-only": "^0.0.1",
+    "ws": "^8.23.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.65.1",
@@ -32,6 +36,7 @@
     "@types/pg": "^8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/ws": "^8.18.2",
     "eslint": "^9",
     "eslint-config-next": "^16.4.6",
     "pdfkit": "^0.21.0",

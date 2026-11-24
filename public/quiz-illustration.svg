@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="450" viewBox="0 0 600 450" fill="none">
+<defs>
+ <linearGradient id="arch" x1="285" y1="54" x2="495" y2="335" gradientUnits="userSpaceOnUse"><stop stop-color="#f6d9d2"/><stop offset="1" stop-color="#e7a39a"/></linearGradient>
+ <linearGradient id="red" x1="118" y1="45" x2="215" y2="168" gradientUnits="userSpaceOnUse"><stop stop-color="#d9575e"/><stop offset="1" stop-color="#a51f29"/></linearGradient>
+ <linearGradient id="sheet" x1="250" y1="112" x2="408" y2="380" gradientUnits="userSpaceOnUse"><stop stop-color="#fff"/><stop offset="1" stop-color="#fcf6f2"/></linearGradient>
+ <linearGradient id="book" x1="302" y1="378" x2="535" y2="400" gradientUnits="userSpaceOnUse"><stop stop-color="#c85a5e"/><stop offset="1" stop-color="#a52c35"/></linearGradient>
+ <filter id="shadow" x="-30%" y="-25%" width="170%" height="180%"><feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#6e2828" flood-opacity=".09"/></filter>
+ <pattern id="dots" width="15" height="15" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="1.6" fill="#c56f70" opacity=".65"/></pattern>
+</defs>
+<path d="M100 315C100 160 187 44 305 44c120 0 227 125 227 271H100Z" fill="url(#arch)"/>
+<path d="M76 376c0-62 58-111 130-111h126v111H76Z" fill="#f1e4d7"/>
+<circle cx="492" cy="127" r="67" fill="#faf0e9"/>
+<path d="M130 325c0-127 81-228 190-228" stroke="#fff" stroke-opacity=".55" stroke-width="1.3"/>
+<path fill="url(#dots)" d="M460 39h87v71h-87zM67 308h55v78H67z"/>
+<g transform="translate(105 91) rotate(-9)" filter="url(#shadow)">
+ <rect width="79" height="79" rx="19" fill="url(#red)"/>
+ <rect x="1" y="1" width="77" height="77" rx="18" stroke="#fff" stroke-opacity=".24"/>
+ <g stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M27 21h26v13c0 10-5 17-13 17s-13-7-13-17V21ZM27 26h-6v7c0 7 3 10 10 10M53 26h6v7c0 7-3 10-10 10M40 51v9m-9 0h18"/></g>
+</g>
+<g transform="translate(205 104) rotate(-5) skewX(-7)" filter="url(#shadow)">
+ <rect x="8" y="10" width="238" height="282" rx="24" fill="#dca69f"/>
+ <rect width="238" height="282" rx="24" fill="url(#sheet)" stroke="#efe2dc"/>
+ <rect x="27" y="26" width="55" height="22" rx="6" fill="#fce8e2"/>
+ <text x="38" y="41" font-family="Arial,sans-serif" font-size="11" font-weight="700" fill="#b12a34">SOAL 01</text>
+ <rect x="28" y="64" width="179" height="7" rx="3.5" fill="#d4cdca"/>
+ <rect x="28" y="79" width="128" height="7" rx="3.5" fill="#e0d9d5"/>
+ <circle cx="38" cy="115" r="7" stroke="#c2b8b2" stroke-width="1.4"/><text x="57" y="120" font-family="Arial,sans-serif" font-size="13" fill="#615853">A</text><rect x="80" y="112" width="89" height="5" rx="2.5" fill="#e2dbd7"/>
+ <rect x="22" y="137" width="191" height="33" rx="8" fill="#f8dfd9"/>
+ <circle cx="38" cy="153" r="7" fill="#b62933"/><path d="m35 153 2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><text x="57" y="158" font-family="Arial,sans-serif" font-size="13" font-weight="700" fill="#a5232d">B</text><rect x="80" y="150" width="108" height="5" rx="2.5" fill="#d99b95"/>
+ <circle cx="38" cy="191" r="7" stroke="#c2b8b2" stroke-width="1.4"/><text x="57" y="196" font-family="Arial,sans-serif" font-size="13" fill="#615853">C</text><rect x="80" y="188" width="96" height="5" rx="2.5" fill="#e2dbd7"/>
+ <circle cx="38" cy="225" r="7" stroke="#c2b8b2" stroke-width="1.4"/><text x="57" y="230" font-family="Arial,sans-serif" font-size="13" fill="#615853">D</text><rect x="80" y="222" width="71" height="5" rx="2.5" fill="#e2dbd7"/>
+ <circle cx="38" cy="257" r="7" stroke="#c2b8b2" stroke-width="1.4"/><text x="57" y="262" font-family="Arial,sans-serif" font-size="13" fill="#615853">E</text><rect x="80" y="254" width="97" height="5" rx="2.5" fill="#e2dbd7"/>
+</g>
+<g transform="translate(479 211) rotate(8)" filter="url(#shadow)"><rect width="65" height="65" rx="17" fill="#fff9f5" stroke="#ecd3ca"/><rect x="16" y="34" width="7" height="16" rx="2" fill="#e6b4a8"/><rect x="29" y="24" width="7" height="26" rx="2" fill="#ce7d76"/><rect x="42" y="15" width="7" height="35" rx="2" fill="#b7313a"/></g>
+<g filter="url(#shadow)"><path d="M376 337h163v43H376a21.5 21.5 0 0 1 0-43Z" fill="#cb9187"/><path d="M384 343h151v31H384a15.5 15.5 0 0 1 0-31Z" fill="#fff7ea"/><path d="M387 351h142m-142 7h142m-142 7h142" stroke="#e8d9c6"/><path d="M376 337h166" stroke="#dba79d" stroke-width="7" stroke-linecap="round"/><path d="M376 378h166" stroke="#dba79d" stroke-width="7" stroke-linecap="round"/>
+<path d="M332 378h218v42H332a21 21 0 0 1 0-42Z" fill="url(#book)"/><path d="M431 384h114v30H431a15 15 0 0 1 0-30Z" fill="#fcf0df"/><path d="M444 392h96m-96 7h96m-96 7h96" stroke="#e5d4bf"/><path d="M480 378h20v28l-10-6-10 6Z" fill="#88232d"/></g>
+<path d="m235 40 2 6 6 2-6 2-2 6-2-6-6-2 6-2 2-6ZM562 319l2 5 5 2-5 2-2 5-2-5-5-2 5-2 2-5Z" fill="#bd6967"/>
+</svg>
